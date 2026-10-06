@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="Transaction Paper — secure personal financial ledger for tracking money given, received and balances.">
+  <title>Transaction Paper — Personal Ledger</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: "#eff6ff",
+              100: "#dbeafe",
+              500: "#3b82f6",
+              600: "#2563eb",
+              700: "#1d4ed8",
+              800: "#1e40af"
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: "Inter", sans-serif; }
+    html { scroll-behavior: smooth; }
+    body { -webkit-tap-highlight-color: transparent; }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .sidebar-transition { transition: transform .25s ease; }
+    .modal-backdrop { background: rgba(0,0,0,.55); backdrop-filter: blur(4px); }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+
+  <!-- MOBILE HEADER -->
+  <header class="lg:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 glass border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center justify-between px-4 py-3">
+      <button id="mobileMenuBtn" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800" aria-label="Open menu">☰</button>
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-primary-600 text-white flex items-center justify-center font-bold">TP</div>
+        <span class="font-bold text-lg">Transaction Paper</span>
+      </div>
+      <button id="mobileThemeBtn" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800" aria-label="Toggle theme">☾</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="fixed z-50 lg:z-30 left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 sidebar-transition -translate-x-full lg:translate-x-0">
+    <div class="h-full flex flex-col">
+      <div class="h-20 px-6 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="w-11 h-11 rounded-2xl bg-primary-600 text-white flex items-center justify-center font-extrabold text-lg">TP</div>
+        <div>
+          <h1 class="font-extrabold text-lg">Transaction Paper</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Personal Financial Ledger</p>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-4 space-y-2">
+        <button data-page="dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold">📊 Dashboard</button>
+        <button data-page="people" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">👥 People</button>
+        <button data-page="transactions" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">💳 Transactions</button>
+        <button data-page="reports" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">📄 Reports</button>
+        <button data-page="settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">⚙️ Settings</button>
+      </nav>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+          <img id="userPhoto" src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff" class="w-10 h-10 rounded-full" alt="User">
+          <div class="min-w-0 flex-1">
+            <p id="userName" class="font-semibold text-sm truncate">Guest User</p>
+            <p id="userEmail" class="text-xs text-slate-500 truncate">Sign in to sync</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebarOverlay" class="fixed inset-0 z-40 bg-black/50 hidden lg:hidden"></div>
+
+  <!-- MAIN -->
+  <main class="lg:ml-72 min-h-screen">
+
+    <!-- DESKTOP TOPBAR -->
+    <div class="hidden lg:flex h-20 items-center justify-between px-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <div>
+        <h2 id="pageTitle" class="text-xl font-bold">Dashboard</h2>
+        <p class="text-sm text-slate-500">Manage your money with confidence.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="themeBtn" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800" aria-label="Toggle theme">☾</button>
+        <button id="addTransactionTop" class="px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold">+ Add Transaction</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboardPage" class="page p-4 sm:p-6 lg:p-8">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Welcome back 👋</p>
+          <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">Your Money Overview</h2>
+        </div>
+        <button id="addTransactionBtn" class="lg:hidden w-full sm:w-auto px-5 py-3 rounded-xl bg-primary-600 text-white font-semibold">+ Add Transaction</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p class="text-sm text-slate-500 dark:text-slate-400">Total Given</p>
+          <h3 id="totalGiven" class="text-2xl font-extrabold mt-2">₹0.00</h3>
+          <p class="text-xs text-slate-400 mt-3">Money you have given</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <p class="text-sm text-slate-500 dark:text-slate-400">Total Received</p>
+          <h3 id="totalReceived" class="text-2xl font-extrabold mt-2">₹0.00</h3>
+          <p class="text-xs text-slate-400 mt-3">Money you have received</p>
+        </div>
+
+        <div class="bg-primary-600 text-white rounded-2xl p-5 shadow-xl shadow-blue-500/20 sm:col-span-2 xl:col-span-1">
+          <p class="text-sm text-blue-100">Net Balance</p>
+          <h3 id="netBalance" class="text-2xl font-extrabold mt-2">₹0.00</h3>
+          <p class="text-xs text-blue-100 mt-3">Current outstanding balance</p>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="font-bold text-lg mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button class="quick-action" data-action="given">💸<span>Money Given</span></button>
+          <button class="quick-action" data-action="received">💰<span>Money Received</span></button>
+          <button class="quick-action" data-action="person">👤<span>Add Person</span></button>
+          <button class="quick-action" data-action="report">📄<span>Statement</span></button>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <div class="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <h3 class="font-bold text-lg">People & Accounts</h3>
+            <p class="text-sm text-slate-500">Your latest ledger accounts</p>
+          </div>
+          <button id="viewPeopleBtn" class="text-primary-600 font-semibold text-sm">View All →</button>
+        </div>
+
+        <div class="p-4">
+          <div class="relative">
+            <input id="personSearch" type="search" placeholder="Search people..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 pl-11 outline-none focus:ring-2 focus:ring-primary-500">
+            <span class="absolute left-4 top-3.5 text-slate-400">🔎</span>
+          </div>
+        </div>
+
+        <div id="peopleList" class="divide-y divide-slate-100 dark:divide-slate-800">
+          <div class="p-10 text-center">
+            <div class="text-4xl mb-3">👥</div>
+            <h4 class="font-bold">No accounts yet</h4>
+            <p class="text-sm text-slate-500 mt-1">Add your first person to start tracking transactions.</p>
+            <button id="emptyAddPerson" class="mt-4 px-4 py-2.5 rounded-xl bg-primary-600 text-white font-semibold">+ Add Person</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PEOPLE -->
+    <section id="peoplePage" class="page hidden p-4 sm:p-6 lg:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-2xl font-extrabold">People</h2>
+          <p class="text-sm text-slate-500">Manage your customer and personal accounts.</p>
+        </div>
+        <button id="addPersonBtn" class="px-5 py-3 rounded-xl bg-primary-600 text-white font-semibold">+ Add Person</button>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input id="peoplePageSearch" type="search" placeholder="Search name or phone..." class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+          <select id="statusFilter" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+            <option value="all">All Status</option>
+            <option value="due">Dues</option>
+            <option value="settled">Settled</option>
+          </select>
+          <select id="sortPeople" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+            <option value="name">Sort by Name</option>
+            <option value="balance">Sort by Balance</option>
+            <option value="recent">Recently Added</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="allPeopleList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section id="transactionsPage" class="page hidden p-4 sm:p-6 lg:p-8">
+      <div class="mb-6">
+        <h2 class="text-2xl font-extrabold">Transactions</h2>
+        <p class="text-sm text-slate-500">Complete history of your financial transactions.</p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+          <input id="transactionSearch" type="search" placeholder="Search transactions..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+        </div>
+        <div id="transactionsList" class="divide-y divide-slate-100 dark:divide-slate-800">
+          <div class="p-10 text-center text-slate-500">No transactions yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="reportsPage" class="page hidden p-4 sm:p-6 lg:p-8">
+      <div class="mb-6">
+        <h2 class="text-2xl font-extrabold">Reports</h2>
+        <p class="text-sm text-slate-500">Generate and download financial statements.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
+          <div class="text-4xl mb-4">📄</div>
+          <h3 class="font-bold text-lg">Full Statement</h3>
+          <p class="text-sm text-slate-500 mt-2">Download a complete PDF statement of your ledger.</p>
+          <button id="downloadFullReport" class="mt-5 px-4 py-2.5 rounded-xl bg-primary-600 text-white font-semibold">Download PDF</button>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
+          <div class="text-4xl mb-4">📊</div>
+          <h3 class="font-bold text-lg">Account Statement</h3>
+          <p class="text-sm text-slate-500 mt-2">Select a person and generate their statement.</p>
+          <select id="reportPersonSelect" class="w-full mt-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+            <option value="">Select person</option>
+          </select>
+          <button id="downloadPersonReport" class="mt-3 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold">Download Statement</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settingsPage" class="page hidden p-4 sm:p-6 lg:p-8">
+      <div class="mb-6">
+        <h2 class="text-2xl font-extrabold">Settings</h2>
+        <p class="text-sm text-slate-500">Manage your Transaction Paper preferences.</p>
+      </div>
+
+      <div class="space-y-4 max-w-2xl">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">Appearance</h3>
+            <p class="text-sm text-slate-500">Switch between light and dark mode.</p>
+          </div>
+          <button id="settingsThemeBtn" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800">Toggle</button>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+          <h3 class="font-bold">Account</h3>
+          <div class="mt-4 flex items-center gap-3">
+            <img id="settingsUserPhoto" src="https://ui-avatars.com/api/?name=User" class="w-12 h-12 rounded-full" alt="User">
+            <div>
+              <p id="settingsUserName" class="font-semibold">Guest User</p>
+              <p id="settingsUserEmail" class="text-sm text-slate-500">Not signed in</p>
+            </div>
+          </div>
+          <button id="logoutBtn" class="mt-5 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 font-semibold">Sign Out</button>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+          <h3 class="font-bold">Privacy & Security</h3>
+          <p class="text-sm text-slate-500 mt-2">Your ledger data is stored under your authenticated Firebase account. Secure Firestore rules will restrict access to your own records.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ADD PERSON MODAL -->
+<div id="personModal" class="fixed inset-0 z-[60] hidden modal-backdrop items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div>
+        <h3 class="font-bold text-lg">Add Person</h3>
+        <p class="text-xs text-slate-500">Create a new ledger account</p>
+      </div>
+      <button id="closePersonModal" class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800">✕</button>
+    </div>
+
+    <form id="personForm" class="p-5 space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1" for="personName">Full Name</label>
+        <input id="personName" required type="text" placeholder="e.g. Rahul Sharma" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none focus:ring-2 focus:ring-primary-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="personPhone">Mobile Number</label>
+        <input id="personPhone" type="tel" placeholder="10 digit mobile number" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="personNote">Note</label>
+        <textarea id="personNote" rows="3" placeholder="Optional note..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none"></textarea>
+      </div>
+
+      <button type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Person</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD TRANSACTION MODAL -->
+<div id="transactionModal" class="fixed inset-0 z-[60] hidden modal-backdrop items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <div>
+        <h3 class="font-bold text-lg">Add Transaction</h3>
+        <p class="text-xs text-slate-500">Record money given or received</p>
+      </div>
+      <button id="closeTransactionModal" class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800">✕</button>
+    </div>
+
+    <form id="transactionForm" class="p-5 space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-2">Transaction Type</label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="transactionType" value="given" checked class="peer hidden">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-center peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-500/10">💸 Money Given</div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="transactionType" value="received" class="peer hidden">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-500/10">💰 Received</div>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="transactionPerson">Person</label>
+        <select id="transactionPerson" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+          <option value="">Select person</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="transactionAmount">Amount (₹)</label>
+        <input id="transactionAmount" required min="0.01" step="0.01" type="number" placeholder="1000" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="transactionDate">Date</label>
+        <input id="transactionDate" required type="date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1" for="transactionNote">Note</label>
+        <textarea id="transactionNote" rows="3" placeholder="Purpose or additional details..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"></textarea>
+      </div>
+
+      <button type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Transaction</button>
+    </form>
+  </div>
+</div>
+
+<!-- PERSON DETAIL MODAL -->
+<div id="personDetailModal" class="fixed inset-0 z-[60] hidden modal-backdrop items-center justify-center p-4">
+  <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="p-5 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-3">
+          <div id="detailAvatar" class="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-500/20 text-primary-700 flex items-center justify-center font-bold text-lg">U</div>
+          <div>
+            <h3 id="detailName" class="font-bold text-lg">Person</h3>
+            <p id="detailPhone" class="text-sm text-slate-500"></p>
+          </div>
+        </div>
+        <button id="closePersonDetail" class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800">✕</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-5">
+        <div class="p-3 rounded-xl bg-red-50 dark:bg-red-500/10">
+          <p class="text-xs text-slate-500">Given</p>
+          <p id="detailGiven" class="font-bold text-red-600 mt-1">₹0</p>
+        </div>
+        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10">
+          <p class="text-xs text-slate-500">Received</p>
+          <p id="detailReceived" class="font-bold text-emerald-600 mt-1">₹0</p>
+        </div>
+        <div class="p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10">
+          <p class="text-xs text-slate-500">Balance</p>
+          <p id="detailBalance" class="font-bold text-primary-600 mt-1">₹0</p>
+        </div>
+      </div>
+
+      <a id="whatsappReminder" href="#" target="_blank" rel="noopener" class="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">💬 Send WhatsApp Reminder</a>
+    </div>
+
+    <div class="p-5">
+      <h4 class="font-bold mb-4">Transaction Timeline</h4>
+      <div id="personTimeline" class="space-y-4">
+        <div class="text-center text-slate-500 py-8">No transactions.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-7 sm:p-9 shadow-2xl">
+      <div class="text-center">
+        <div class="mx-auto w-16 h-16 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-2xl font-extrabold">TP</div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold mt-5">Transaction Paper</h1>
+        <p class="text-sm text-slate-500 mt-2">Your secure personal financial ledger.</p>
+      </div>
+
+      <div class="mt-8">
+        <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.22a4.46 4.46 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.93-4.18 2.93-7.19z"/>
+            <path fill="#34A853" d="M12 21.99c2.63 0 4.84-.87 6.45-2.36l-3.14-2.43c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.51A9.74 9.74 0 0 0 12 21.99z"/>
+            <path fill="#FBBC05" d="M6.54 14.09a5.86 5.86 0 0 1 0-3.76V7.82H3.3a9.99 9.99 0 0 0 0 8.78l3.24-2.51z"/>
+            <path fill="#EA4335" d="M12 6.3c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.34 14.62 2.47 12 2.47a9.74 9.74 0 0 0-8.7 5.35l3.24 2.51C7.31 8.02 9.46 6.3 12 6.3z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 my-6">
+        <div class="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
+        <span class="text-xs text-slate-400">SECURE CLOUD LEDGER</span>
+        <div class="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div><div class="text-xl">🔐</div><p class="text-[11px] text-slate-500 mt-1">Secure</p></div>
+        <div><div class="text-xl">☁️</div><p class="text-[11px] text-slate-500 mt-1">Cloud Backup</p></div>
+        <div><div class="text-xl">📱</div><p class="text-[11px] text-slate-500 mt-1">Mobile Ready</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="fixed z-[200] bottom-5 left-1/2 -translate-x-1/2 hidden">
+  <div id="toastContent" class="px-5 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xl text-sm font-semibold">Done</div>
+</div>
+
+<script>
+  const root = document.documentElement;
+
+  function applyTheme(theme) {
+    root.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("tp-theme", theme);
+  }
+
+  function toggleTheme() {
+    applyTheme(root.classList.contains("dark") ? "light" : "dark");
+  }
+
+  const savedTheme = localStorage.getItem("tp-theme");
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+    applyTheme("dark");
+  }
+
+  ["themeBtn", "mobileThemeBtn", "settingsThemeBtn"].forEach(id => {
+    document.getElementById(id)?.addEventListener("click", toggleTheme);
+  });
+
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  function openSidebar() {
+    sidebar?.classList.remove("-translate-x-full");
+    overlay?.classList.remove("hidden");
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.add("-translate-x-full");
+    overlay?.classList.add("hidden");
+  }
+
+  document.getElementById("mobileMenuBtn")?.addEventListener("click", openSidebar);
+  overlay?.addEventListener("click", closeSidebar);
+
+  const pages = ["dashboard", "people", "transactions", "reports", "settings"];
+
+  function showPage(page) {
+    pages.forEach(name => {
+      document.getElementById(name + "Page")?.classList.toggle("hidden", name !== page);
+    });
+
+    document.querySelectorAll(".nav-item").forEach(btn => {
+      const active = btn.dataset.page === page;
+      btn.classList.toggle("bg-primary-50", active);
+      btn.classList.toggle("dark:bg-primary-500/10", active);
+      btn.classList.toggle("text-primary-700", active);
+      btn.classList.toggle("dark:text-primary-400", active);
+      btn.classList.toggle("font-semibold", active);
+    });
+
+    const titles = {
+      dashboard: "Dashboard",
+      people: "People",
+      transactions: "Transactions",
+      reports: "Reports",
+      settings: "Settings"
+    };
+
+    const title = document.getElementById("pageTitle");
+    if (title) title.textContent = titles[page] || "Transaction Paper";
+
+    closeSidebar();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (page === "people") window.renderPeople?.();
+    if (page === "transactions") window.renderTransactions?.();
+    if (page === "reports") window.updatePersonSelects?.();
+  }
+
+  document.querySelectorAll(".nav-item").forEach(btn => {
+    btn.addEventListener("click", () => showPage(btn.dataset.page));
+  });
+
+  document.getElementById("viewPeopleBtn")?.addEventListener("click", () => showPage("people"));
+
+  function openModal(modal) {
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeModal(modal) {
+    if (!modal) return;
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.showPage = showPage;
+
+  document.getElementById("addPersonBtn")?.addEventListener("click", () => openModal(document.getElementById("personModal")));
+  document.getElementById("emptyAddPerson")?.addEventListener("click", () => openModal(document.getElementById("personModal")));
+
+  document.getElementById("closePersonModal")?.addEventListener("click", () => closeModal(document.getElementById("personModal")));
+  document.getElementById("addTransactionBtn")?.addEventListener("click", () => openModal(document.getElementById("transactionModal")));
+  document.getElementById("addTransactionTop")?.addEventListener("click", () => openModal(document.getElementById("transactionModal")));
+  document.getElementById("closeTransactionModal")?.addEventListener("click", () => closeModal(document.getElementById("transactionModal")));
+  document.getElementById("closePersonDetail")?.addEventListener("click", () => closeModal(document.getElementById("personDetailModal")));
+
+  [document.getElementById("personModal"), document.getElementById("transactionModal"), document.getElementById("personDetailModal")].forEach(modal => {
+    modal?.addEventListener("click", e => {
+      if (e.target === modal) closeModal(modal);
+    });
+  });
+
+  const dateInput = document.getElementById("transactionDate");
+  if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+
+  document.querySelectorAll(".quick-action").forEach(btn => {
+    btn.className = "quick-action flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition text-sm font-semibold";
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      if (action === "given" || action === "received") {
+        openModal(document.getElementById("transactionModal"));
+        const radio = document.querySelector(`input[name="transactionType"][value="${action}"]`);
+        if (radio) radio.checked = true;
+      } else if (action === "person") {
+        openModal(document.getElementById("personModal"));
+      } else if (action === "report") {
+        showPage("reports");
+      }
+    });
+  });
+
+  window.showToast = function(message, duration = 2500) {
+    const toast = document.getElementById("toast");
+    const content = document.getElementById("toastContent");
+    if (!toast || !content) return;
+    content.textContent = message;
+    toast.classList.remove("hidden");
+    clearTimeout(window.__tpToastTimer);
+    window.__tpToastTimer = setTimeout(() => toast.classList.add("hidden"), duration);
+  };
+
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    closeModal(document.getElementById("personModal"));
+    closeModal(document.getElementById("transactionModal"));
+    closeModal(document.getElementById("personDetailModal"));
+    closeSidebar();
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(err => {
+        console.warn("PWA service worker not ready yet:", err);
+      });
+    });
+  }
+</script>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
