@@ -1,0 +1,8882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
+
+  <meta
+    name="description"
+    content="Transaction Paper — secure personal financial ledger for money given, received and outstanding balances."
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <title>
+    Transaction Paper — Personal Financial Ledger
+  </title>
+
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: "#eff6ff",
+              100: "#dbeafe",
+              200: "#bfdbfe",
+              500: "#3b82f6",
+              600: "#2563eb",
+              700: "#1d4ed8",
+              800: "#1e40af",
+              900: "#1e3a8a"
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Font -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- jsPDF -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+  ></script>
+
+  <style>
+
+    * {
+      font-family: "Inter", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .glass {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .sidebar-transition {
+      transition: transform 0.25s ease;
+    }
+
+    .modal-backdrop {
+      background: rgba(2, 6, 23, 0.62);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .card-shadow {
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+    }
+
+    .dark .card-shadow {
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      transition: 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: #f1f5f9;
+    }
+
+    .dark .nav-item {
+      color: #cbd5e1;
+    }
+
+    .dark .nav-item:hover {
+      background: #1e293b;
+    }
+
+    .nav-item.active {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .dark .nav-item.active {
+      background: rgba(59, 130, 246, 0.12);
+      color: #60a5fa;
+    }
+
+    .quick-action {
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .quick-action:hover {
+      transform: translateY(-2px);
+      background: #f8fafc;
+    }
+
+    .dark .quick-action {
+      border-color: #334155;
+      background: #0f172a;
+    }
+
+    .dark .quick-action:hover {
+      background: #1e293b;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status-due {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .status-settled {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .dark .status-due {
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .dark .status-settled {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .hidden-page {
+      display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 99px;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+
+  </style>
+</head>
+
+
+<body
+  class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100"
+>
+
+
+<!-- =========================================================
+     MOBILE HEADER
+========================================================= -->
+
+<header
+  id="mobileHeader"
+  class="lg:hidden sticky top-0 z-40
+         bg-white/90 dark:bg-slate-900/90
+         glass
+         border-b border-slate-200
+         dark:border-slate-800"
+>
+
+  <div
+    class="px-4 py-3
+           flex items-center
+           justify-between"
+  >
+
+    <button
+      id="mobileMenuBtn"
+      class="w-10 h-10 rounded-xl
+             bg-slate-100
+             dark:bg-slate-800
+             flex items-center
+             justify-center"
+      aria-label="Open menu"
+    >
+      ☰
+    </button>
+
+
+    <div class="flex items-center gap-2">
+
+      <div
+        class="w-9 h-9 rounded-xl
+               bg-primary-600
+               text-white
+               flex items-center
+               justify-center
+               font-extrabold"
+      >
+        TP
+      </div>
+
+      <div>
+
+        <div class="font-bold">
+          Transaction Paper
+        </div>
+
+        <div class="text-[10px] text-slate-500">
+          Personal Financial Ledger
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <button
+      id="mobileThemeBtn"
+      class="w-10 h-10 rounded-xl
+             bg-slate-100
+             dark:bg-slate-800
+             flex items-center
+             justify-center"
+      aria-label="Toggle theme"
+    >
+      ☾
+    </button>
+
+  </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside
+  id="sidebar"
+  class="fixed
+         z-50 lg:z-30
+         left-0 top-0 bottom-0
+         w-72
+         bg-white
+         dark:bg-slate-900
+         border-r
+         border-slate-200
+         dark:border-slate-800
+         sidebar-transition
+         -translate-x-full
+         lg:translate-x-0"
+>
+
+  <div class="h-full flex flex-col">
+
+
+    <!-- Brand -->
+
+    <div
+      class="h-20
+             px-6
+             flex items-center
+             gap-3
+             border-b
+             border-slate-200
+             dark:border-slate-800"
+    >
+
+      <div
+        class="w-11 h-11
+               rounded-2xl
+               bg-primary-600
+               text-white
+               flex items-center
+               justify-center
+               font-extrabold
+               text-lg"
+      >
+        TP
+      </div>
+
+
+      <div>
+
+        <div
+          class="font-extrabold
+                 text-lg"
+        >
+          Transaction Paper
+        </div>
+
+        <div
+          class="text-xs
+                 text-slate-500
+                 dark:text-slate-400"
+        >
+          Personal Financial Ledger
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Navigation -->
+
+    <nav class="flex-1 p-4 space-y-2">
+
+      <button
+        class="nav-item active"
+        data-page="dashboard"
+      >
+        <span>📊</span>
+        <span>Dashboard</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page="people"
+      >
+        <span>👥</span>
+        <span>People</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page="transactions"
+      >
+        <span>💳</span>
+        <span>Transactions</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page="spending"
+      >
+        <span>🧾</span>
+        <span>Daily Spending</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page="reports"
+      >
+        <span>📄</span>
+        <span>Reports</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page="settings"
+      >
+        <span>⚙️</span>
+        <span>Settings</span>
+      </button>
+
+    </nav>
+
+
+    <!-- User -->
+
+    <div
+      class="p-4
+             border-t
+             border-slate-200
+             dark:border-slate-800"
+    >
+
+      <div
+        class="flex
+               items-center
+               gap-3
+               p-3
+               rounded-xl
+               bg-slate-50
+               dark:bg-slate-800/70"
+      >
+
+        <img
+          id="sidebarUserPhoto"
+          src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff"
+          class="w-10 h-10 rounded-full"
+          alt="User"
+        >
+
+
+        <div class="min-w-0 flex-1">
+
+          <p
+            id="sidebarUserName"
+            class="font-semibold
+                   text-sm
+                   truncate"
+          >
+            Guest User
+          </p>
+
+
+          <p
+            id="sidebarUserEmail"
+            class="text-xs
+                   text-slate-500
+                   truncate"
+          >
+            Sign in to sync
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</aside>
+
+
+<div
+  id="sidebarOverlay"
+  class="fixed inset-0
+         z-40
+         hidden
+         bg-black/50
+         lg:hidden"
+>
+</div>
+
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="lg:ml-72 min-h-screen">
+
+
+<!-- =========================================================
+     DESKTOP TOPBAR
+========================================================= -->
+
+<div
+  class="hidden lg:flex
+         h-20
+         items-center
+         justify-between
+         px-8
+         bg-white
+         dark:bg-slate-900
+         border-b
+         border-slate-200
+         dark:border-slate-800"
+>
+
+  <div>
+
+    <h1
+      id="pageTitle"
+      class="text-xl font-extrabold"
+    >
+      Dashboard
+    </h1>
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Manage your money with confidence.
+    </p>
+
+  </div>
+
+
+  <div class="flex items-center gap-3">
+
+    <button
+      id="desktopThemeBtn"
+      class="w-10 h-10
+             rounded-xl
+             bg-slate-100
+             dark:bg-slate-800"
+      aria-label="Toggle theme"
+    >
+      ☾
+    </button>
+
+
+    <button
+      id="desktopAddTransaction"
+      class="px-4 py-2.5
+             rounded-xl
+             bg-primary-600
+             hover:bg-primary-700
+             text-white
+             font-semibold
+             shadow-lg
+             shadow-blue-500/20"
+    >
+      + Add Transaction
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     DASHBOARD PAGE
+========================================================= -->
+
+<section
+  id="dashboardPage"
+  class="page-section p-4 sm:p-6 lg:p-8"
+>
+
+
+  <div
+    class="mb-7
+           flex flex-col
+           sm:flex-row
+           sm:items-center
+           sm:justify-between
+           gap-4"
+  >
+
+    <div>
+
+      <p
+        class="text-sm
+               text-slate-500"
+      >
+        Welcome back 👋
+      </p>
+
+
+      <h2
+        class="text-2xl
+               sm:text-3xl
+               font-extrabold
+               mt-1"
+      >
+        Your Money Overview
+      </h2>
+
+    </div>
+
+
+    <button
+      id="mobileAddTransaction"
+      class="lg:hidden
+             w-full
+             sm:w-auto
+             px-5 py-3
+             rounded-xl
+             bg-primary-600
+             text-white
+             font-semibold"
+    >
+      + Add Transaction
+    </button>
+
+  </div>
+
+
+
+  <!-- Summary Cards -->
+
+  <div
+    class="grid
+           grid-cols-1
+           sm:grid-cols-2
+           xl:grid-cols-3
+           gap-4
+           mb-8"
+  >
+
+
+    <!-- Given -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5
+             card-shadow"
+    >
+
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-sm
+                   text-slate-500"
+          >
+            Total Given
+          </p>
+
+
+          <h3
+            id="totalGiven"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
+          >
+            ₹0.00
+          </h3>
+
+        </div>
+
+
+        <div
+          class="w-11 h-11
+                 rounded-xl
+                 bg-red-50
+                 dark:bg-red-500/10
+                 text-red-600
+                 flex items-center
+                 justify-center
+                 text-xl"
+        >
+          ↑
+        </div>
+
+      </div>
+
+
+      <p
+        class="text-xs
+               text-slate-400
+               mt-4"
+      >
+        Money you have given
+      </p>
+
+    </div>
+
+
+
+    <!-- Received -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5
+             card-shadow"
+    >
+
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-sm
+                   text-slate-500"
+          >
+            Total Received
+          </p>
+
+
+          <h3
+            id="totalReceived"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
+          >
+            ₹0.00
+          </h3>
+
+        </div>
+
+
+        <div
+          class="w-11 h-11
+                 rounded-xl
+                 bg-emerald-50
+                 dark:bg-emerald-500/10
+                 text-emerald-600
+                 flex items-center
+                 justify-center
+                 text-xl"
+        >
+          ↓
+        </div>
+
+      </div>
+
+
+      <p
+        class="text-xs
+               text-slate-400
+               mt-4"
+      >
+        Money you have received
+      </p>
+
+    </div>
+
+
+
+    <!-- Net -->
+
+    <div
+      class="bg-primary-600
+             text-white
+             rounded-2xl
+             p-5
+             shadow-xl
+             shadow-blue-500/20
+             sm:col-span-2
+             xl:col-span-1"
+    >
+
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-sm
+                   text-blue-100"
+          >
+            Net Balance
+          </p>
+
+
+          <h3
+            id="netBalance"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
+          >
+            ₹0.00
+          </h3>
+
+        </div>
+
+
+        <div
+          class="w-11 h-11
+                 rounded-xl
+                 bg-white/15
+                 flex items-center
+                 justify-center
+                 text-xl"
+        >
+          ₹
+        </div>
+
+      </div>
+
+
+      <p
+        class="text-xs
+               text-blue-100
+               mt-4"
+      >
+        Given minus received
+      </p>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Quick Actions -->
+
+  <div class="mb-8">
+
+    <h3
+      class="font-bold
+             text-lg
+             mb-4"
+    >
+      Quick Actions
+    </h3>
+
+
+    <div
+      class="grid
+             grid-cols-2
+             sm:grid-cols-4
+             gap-3"
+    >
+
+
+      <button
+        class="quick-action"
+        data-quick="given"
+      >
+
+        <span class="text-2xl">
+          💸
+        </span>
+
+        <span>
+          Money Given
+        </span>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        data-quick="received"
+      >
+
+        <span class="text-2xl">
+          💰
+        </span>
+
+        <span>
+          Money Received
+        </span>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        data-quick="person"
+      >
+
+        <span class="text-2xl">
+          👤
+        </span>
+
+        <span>
+          Add Person
+        </span>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        data-quick="report"
+      >
+
+        <span class="text-2xl">
+          📄
+        </span>
+
+        <span>
+          Statement
+        </span>
+
+      </button>
+
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Dashboard People -->
+
+  <div
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
+           dark:border-slate-800
+           rounded-2xl
+           overflow-hidden"
+  >
+
+    <div
+      class="p-5
+             border-b
+             border-slate-200
+             dark:border-slate-800
+             flex
+             flex-col
+             sm:flex-row
+             sm:items-center
+             sm:justify-between
+             gap-3"
+    >
+
+      <div>
+
+        <h3
+          class="font-bold
+                 text-lg"
+        >
+          People & Accounts
+        </h3>
+
+
+        <p
+          class="text-sm
+                 text-slate-500"
+        >
+          Your latest ledger accounts
+        </p>
+
+      </div>
+
+
+      <button
+        id="viewPeopleBtn"
+        class="text-primary-600
+               font-semibold
+               text-sm"
+      >
+        View All →
+      </button>
+
+    </div>
+
+
+    <div class="p-4">
+
+      <div class="relative">
+
+        <input
+          id="dashboardSearch"
+          type="search"
+          placeholder="Search people..."
+          class="w-full
+                 rounded-xl
+                 border
+                 border-slate-200
+                 dark:border-slate-700
+                 bg-slate-50
+                 dark:bg-slate-800
+                 px-4 py-3 pl-11
+                 outline-none
+                 focus:ring-2
+                 focus:ring-primary-500"
+        >
+
+        <span
+          class="absolute
+                 left-4
+                 top-3.5
+                 text-slate-400"
+        >
+          🔎
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="dashboardPeople"
+      class="divide-y
+             divide-slate-100
+             dark:divide-slate-800"
+    >
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     PEOPLE PAGE
+========================================================= -->
+
+<section
+  id="peoplePage"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
+>
+
+  <div
+    class="flex
+           flex-col
+           sm:flex-row
+           sm:items-center
+           sm:justify-between
+           gap-4
+           mb-6"
+  >
+
+    <div>
+
+      <h2
+        class="text-2xl
+               font-extrabold"
+      >
+        People
+      </h2>
+
+
+      <p
+        class="text-sm
+               text-slate-500"
+      >
+        Manage your ledger accounts.
+      </p>
+
+    </div>
+
+
+    <button
+      id="addPersonPageBtn"
+      class="px-5 py-3
+             rounded-xl
+             bg-primary-600
+             text-white
+             font-semibold"
+    >
+      + Add Person
+    </button>
+
+  </div>
+
+
+
+  <div
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
+           dark:border-slate-800
+           rounded-2xl
+           p-4
+           mb-5"
+  >
+
+    <div
+      class="grid
+             grid-cols-1
+             sm:grid-cols-3
+             gap-3"
+    >
+
+      <input
+        id="peopleSearch"
+        type="search"
+        placeholder="Search name or phone..."
+        class="rounded-xl
+               border
+               border-slate-200
+               dark:border-slate-700
+               bg-slate-50
+               dark:bg-slate-800
+               px-4 py-3
+               outline-none"
+      >
+
+
+      <select
+        id="peopleStatus"
+        class="rounded-xl
+               border
+               border-slate-200
+               dark:border-slate-700
+               bg-slate-50
+               dark:bg-slate-800
+               px-4 py-3"
+      >
+
+        <option value="all">
+          All Status
+        </option>
+
+        <option value="due">
+          Dues
+        </option>
+
+        <option value="settled">
+          Settled
+        </option>
+
+      </select>
+
+
+      <select
+        id="peopleSort"
+        class="rounded-xl
+               border
+               border-slate-200
+               dark:border-slate-700
+               bg-slate-50
+               dark:bg-slate-800
+               px-4 py-3"
+      >
+
+        <option value="name">
+          Sort by Name
+        </option>
+
+        <option value="balance">
+          Sort by Balance
+        </option>
+
+        <option value="recent">
+          Recently Added
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="peopleGrid"
+    class="grid
+           grid-cols-1
+           md:grid-cols-2
+           xl:grid-cols-3
+           gap-4"
+  >
+  </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     TRANSACTIONS PAGE
+========================================================= -->
+
+<section
+  id="transactionsPage"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
+>
+
+  <div class="mb-6">
+
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
+      Transactions
+    </h2>
+
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Complete transaction history.
+    </p>
+
+  </div>
+
+
+  <div
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
+           dark:border-slate-800
+           rounded-2xl
+           overflow-hidden"
+  >
+
+    <div class="p-4">
+
+      <input
+        id="transactionSearch"
+        type="search"
+        placeholder="Search transactions..."
+        class="w-full
+               rounded-xl
+               border
+               border-slate-200
+               dark:border-slate-700
+               bg-slate-50
+               dark:bg-slate-800
+               px-4 py-3
+               outline-none"
+      >
+
+    </div>
+
+
+    <div
+      id="transactionList"
+      class="divide-y
+             divide-slate-100
+             dark:divide-slate-800"
+    >
+    </div>
+
+  </div>
+
+</section>
+
+
+
+
+<!-- =========================================================
+     DAILY SPENDING PAGE
+========================================================= -->
+
+<section
+  id="spendingPage"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
+>
+
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+    <div>
+      <h2 class="text-2xl font-extrabold">
+        Daily Spending
+      </h2>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Track your personal daily purchases and expenses separately from People & Ledger transactions.
+      </p>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        id="downloadSpendingPdfBtn"
+        class="px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold"
+      >
+        📄 Expense PDF
+      </button>
+
+      <button
+        id="addSpendingBtn"
+        class="px-4 py-3 rounded-xl bg-primary-600 text-white font-semibold"
+      >
+        + Add Spending
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- Spending Summary -->
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 card-shadow">
+      <p class="text-sm text-slate-500">Today</p>
+      <p id="spendingToday" class="text-2xl font-extrabold mt-2">
+        ₹0.00
+      </p>
+      <p class="text-xs text-slate-400 mt-2">
+        Total spending today
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 card-shadow">
+      <p class="text-sm text-slate-500">This Month</p>
+      <p id="spendingMonth" class="text-2xl font-extrabold mt-2">
+        ₹0.00
+      </p>
+      <p class="text-xs text-slate-400 mt-2">
+        Total spending this month
+      </p>
+    </div>
+
+    <div class="bg-primary-600 text-white rounded-2xl p-5 shadow-xl shadow-blue-500/20">
+      <p class="text-sm text-blue-100">Average / Day</p>
+      <p id="spendingAverage" class="text-2xl font-extrabold mt-2">
+        ₹0.00
+      </p>
+      <p class="text-xs text-blue-100 mt-2">
+        Average across recorded days
+      </p>
+    </div>
+
+  </div>
+
+
+  <!-- Filters -->
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-5">
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+      <input
+        id="spendingSearch"
+        type="search"
+        placeholder="Search item or category..."
+        class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none"
+      >
+
+      <select
+        id="spendingCategoryFilter"
+        class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+      >
+        <option value="all">All Categories</option>
+        <option value="Food">Food</option>
+        <option value="Travel">Travel</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Bills">Bills</option>
+        <option value="Recharge">Recharge</option>
+        <option value="Medicine">Medicine</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <input
+        id="spendingDateFilter"
+        type="month"
+        class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+      >
+
+    </div>
+
+  </div>
+
+
+  <!-- Spending List -->
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+
+    <div class="p-5 border-b border-slate-200 dark:border-slate-800">
+      <h3 class="font-bold text-lg">
+        Spending History
+      </h3>
+      <p class="text-sm text-slate-500 mt-1">
+        Personal expenses are kept separate from your lending/receiving ledger.
+      </p>
+    </div>
+
+    <div
+      id="spendingList"
+      class="divide-y divide-slate-100 dark:divide-slate-800"
+    >
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     REPORTS PAGE
+========================================================= -->
+
+<section
+  id="reportsPage"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
+>
+
+  <div class="mb-6">
+
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
+      Reports
+    </h2>
+
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Generate professional financial statements.
+    </p>
+
+  </div>
+
+
+  <div
+    class="grid
+           grid-cols-1
+           md:grid-cols-2
+           gap-5"
+  >
+
+
+    <!-- Full -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-6"
+    >
+
+      <div class="text-4xl mb-4">
+        📄
+      </div>
+
+
+      <h3
+        class="text-lg
+               font-bold"
+      >
+        Full Statement
+      </h3>
+
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Download all ledger transactions
+        in a professional PDF format.
+      </p>
+
+
+      <button
+        id="fullPdfBtn"
+        class="mt-5
+               px-4 py-2.5
+               rounded-xl
+               bg-primary-600
+               text-white
+               font-semibold"
+      >
+        Download PDF
+      </button>
+
+    </div>
+
+
+
+    <!-- Person -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-6"
+    >
+
+      <div class="text-4xl mb-4">
+        📊
+      </div>
+
+
+      <h3
+        class="text-lg
+               font-bold"
+      >
+        Account Statement
+      </h3>
+
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Select a person and download their
+        complete account statement.
+      </p>
+
+
+      <select
+        id="reportPerson"
+        class="w-full
+               mt-4
+               rounded-xl
+               border
+               border-slate-200
+               dark:border-slate-700
+               bg-slate-50
+               dark:bg-slate-800
+               px-4 py-3"
+      >
+
+        <option value="">
+          Select person
+        </option>
+
+      </select>
+
+
+      <button
+        id="personPdfBtn"
+        class="mt-3
+               px-4 py-2.5
+               rounded-xl
+               border
+               border-slate-300
+               dark:border-slate-700
+               font-semibold"
+      >
+        Download Statement
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     SETTINGS
+========================================================= -->
+
+<section
+  id="settingsPage"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
+>
+
+  <div class="mb-6">
+
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
+      Settings
+    </h2>
+
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Manage your preferences and account.
+    </p>
+
+  </div>
+
+
+  <div
+    class="max-w-2xl
+           space-y-4"
+  >
+
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5
+             flex
+             items-center
+             justify-between"
+    >
+
+      <div>
+
+        <h3 class="font-bold">
+          Appearance
+        </h3>
+
+        <p
+          class="text-sm
+                 text-slate-500"
+        >
+          Switch between light and dark mode.
+        </p>
+
+      </div>
+
+
+      <button
+        id="settingsThemeBtn"
+        class="px-4 py-2
+               rounded-xl
+               bg-slate-100
+               dark:bg-slate-800"
+      >
+        Toggle
+      </button>
+
+    </div>
+
+
+
+    <!-- Profile -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5"
+    >
+
+      <div
+        class="flex
+               items-center
+               gap-3"
+      >
+
+        <img
+          id="settingsPhoto"
+          src="https://ui-avatars.com/api/?name=User"
+          class="w-12 h-12 rounded-full"
+          alt="User"
+        >
+
+
+        <div>
+
+          <h3
+            id="settingsName"
+            class="font-bold"
+          >
+            Guest User
+          </h3>
+
+
+          <p
+            id="settingsEmail"
+            class="text-sm text-slate-500"
+          >
+            Not signed in
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="logoutBtn"
+        class="mt-5
+               px-4 py-2.5
+               rounded-xl
+               border
+               border-red-200
+               text-red-600
+               font-semibold"
+      >
+        Sign Out
+      </button>
+
+    </div>
+
+
+
+    <!-- Install -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5"
+    >
+
+      <h3 class="font-bold">
+        Install Transaction Paper
+      </h3>
+
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Install Transaction Paper on your phone
+        or computer like an app.
+      </p>
+
+
+      <button
+        id="installAppBtn"
+        class="hidden
+               mt-4
+               px-4 py-2.5
+               rounded-xl
+               bg-primary-600
+               text-white
+               font-semibold"
+      >
+        Install App
+      </button>
+
+    </div>
+
+
+
+    <!-- Security -->
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-2xl
+             p-5"
+    >
+
+      <h3 class="font-bold">
+        Privacy & Security
+      </h3>
+
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2
+               leading-relaxed"
+      >
+        Your records are stored under your authenticated
+        Firebase account. Firestore security rules restrict
+        access to your own user path.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+</main>
+
+
+
+<!-- =========================================================
+     ADD PERSON MODAL
+========================================================= -->
+
+<div
+  id="personModal"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
+>
+
+  <div
+    class="w-full
+           max-w-md
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
+           max-h-[90vh]
+           overflow-y-auto"
+  >
+
+    <div
+      class="p-5
+             border-b
+             border-slate-200
+             dark:border-slate-800
+             flex
+             items-center
+             justify-between"
+    >
+
+      <div>
+
+        <h3
+          class="font-bold
+                 text-lg"
+        >
+          Add Person
+        </h3>
+
+
+        <p
+          class="text-xs
+                 text-slate-500"
+        >
+          Create a new ledger account.
+        </p>
+
+      </div>
+
+
+      <button
+        id="closePersonModal"
+        class="w-9 h-9
+               rounded-lg
+               bg-slate-100
+               dark:bg-slate-800"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <form
+      id="personForm"
+      class="p-5 space-y-4"
+    >
+
+      <div>
+
+        <label
+          for="personName"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
+        >
+          Full Name
+        </label>
+
+
+        <input
+          id="personName"
+          type="text"
+          required
+          maxlength="100"
+          placeholder="e.g. Rahul Sharma"
+          class="w-full
+                 rounded-xl
+                 border
+                 border-slate-200
+                 dark:border-slate-700
+                 bg-slate-50
+                 dark:bg-slate-800
+                 px-4 py-3
+                 outline-none
+                 focus:ring-2
+                 focus:ring-primary-500"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label
+          for="personPhone"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
+        >
+          Mobile Number
+        </label>
+
+
+        <input
+          id="personPhone"
+          type="tel"
+          maxlength="15"
+          placeholder="10 digit mobile number"
+          class="w-full
+                 rounded-xl
+                 border
+                 border-slate-200
+                 dark:border-slate-700
+                 bg-slate-50
+                 dark:bg-slate-800
+                 px-4 py-3
+                 outline-none"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label
+          for="personNote"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
+        >
+          Note
+        </label>
+
+
+        <textarea
+          id="personNote"
+          rows="3"
+          maxlength="500"
+          placeholder="Optional note..."
+          class="w-full
+                 rounded-xl
+                 border
+                 border-slate-200
+                 dark:border-slate-700
+                 bg-slate-50
+                 dark:bg-slate-800
+                 px-4 py-3
+                 outline-none"
+        ></textarea>
+
+      </div>
+
+
+      <button
+        id="savePersonBtn"
+        type="submit"
+        class="w-full
+               py-3
+               rounded-xl
+               bg-primary-600
+               hover:bg-primary-700
+               text-white
+               font-bold"
+      >
+        Save Person
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     ADD TRANSACTION MODAL
+========================================================= -->
+
+<div
+  id="transactionModal"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
+>
+
+  <div
+    class="w-full
+           max-w-md
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
+           max-h-[90vh]
+           overflow-y-auto"
+  >
+
+    <div
+      class="p-5
+             border-b
+             border-slate-200
+             dark:border-slate-800
+             flex
+             items-center
+             justify-between"
+    >
+
+      <div>
+
+        <h3
+          class="font-bold
+                 text-lg"
+        >
+          Add Transaction
+        </h3>
+
+
+        <p
+          class="text-xs
+                 text-slate-500"
+        >
+          Record money given or received.
+        </p>
+
+      </div>
+
+
+      <button
+        id="closeTransactionModal"
+        class="w-9 h-9
+               rounded-lg
+               bg-slate-100
+               dark:bg-slate-800"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <form
+      id="transactionForm"
+      class="p-5 space-y-4"
+    >
+
+
+      <!-- Type -->
+
+      <div>
+        <label class="block text-sm font-medium mb-2">Transaction Type</label>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="transactionType" value="given" checked class="peer hidden">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-center peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-500/10">💸 Money Given</div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="transactionType" value="received" class="peer hidden">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-500/10">💰 Received</div>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label for="transactionPerson" class="block text-sm font-medium mb-1">Person</label>
+        <select id="transactionPerson" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+          <option value="">Select person</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="transactionAmount" class="block text-sm font-medium mb-1">Amount (₹)</label>
+        <input id="transactionAmount" type="number" required min="0.01" step="0.01" inputmode="decimal" placeholder="1000" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+      </div>
+
+      <div>
+        <label for="transactionDate" class="block text-sm font-medium mb-1">Transaction Date</label>
+        <input id="transactionDate" type="date" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+      </div>
+
+      <div>
+        <label for="transactionMode" class="block text-sm font-medium mb-1">Payment Mode</label>
+        <select id="transactionMode" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+          <option value="">Select payment mode</option>
+          <option value="UPI">UPI</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Cash">Cash</option>
+          <option value="Cheque">Cheque</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="transactionReference" class="block text-sm font-medium mb-1">UPI Transaction ID / UTR / Cheque No.</label>
+        <input id="transactionReference" type="text" maxlength="100" placeholder="Paste the Paytm / GPay / PhonePe UPI ID or bank UTR" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
+        <p id="transactionReferenceHelp" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">For UPI or bank payment, copy the transaction ID/UTR from the payment details screen.</p>
+      </div>
+
+      <div>
+        <label for="transactionDueDate" class="block text-sm font-medium mb-1">Due / Repayment Date (Optional)</label>
+        <input id="transactionDueDate" type="date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+      </div>
+
+      <div>
+        <label for="transactionNote" class="block text-sm font-medium mb-1">Purpose / Note / Description</label>
+        <textarea id="transactionNote" rows="3" maxlength="500" placeholder="Personal loan, advance, material payment..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none"></textarea>
+      </div>
+
+      <div class="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 p-4">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input id="transactionAcknowledged" type="checkbox" class="mt-1 w-4 h-4">
+          <span>
+            <span class="block text-sm font-semibold">Counterparty acknowledged this transaction</span>
+            <span class="block text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">Tick this only when the other person has actually acknowledged the transaction. This records the acknowledgement status; it is not a guarantee of legal validity.</span>
+          </span>
+        </label>
+
+        <div class="mt-3">
+          <label for="transactionAcknowledgementMethod" class="block text-xs font-medium mb-1">Acknowledgement Method (Optional)</label>
+          <select id="transactionAcknowledgementMethod" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm">
+            <option value="">Select method</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="SMS">SMS</option>
+            <option value="Written / Signed">Written / Signed</option>
+            <option value="UPI / Bank Record">UPI / Bank Record</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Keep the original UPI/bank records and any messages or signed documents separately.
+      </div>
+
+      <button id="saveTransactionBtn" type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Transaction</button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+
+<!-- =========================================================
+     ADD SPENDING MODAL
+========================================================= -->
+
+<div
+  id="spendingModal"
+  class="fixed inset-0 z-[80] hidden items-center justify-center p-4 modal-backdrop"
+>
+
+  <div
+    class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+  >
+
+    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+
+      <div>
+        <h3 class="font-bold text-lg">
+          Add Daily Spending
+        </h3>
+
+        <p class="text-xs text-slate-500 mt-1">
+          Record your personal purchase or expense.
+        </p>
+      </div>
+
+      <button
+        id="closeSpendingModal"
+        class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <form
+      id="spendingForm"
+      class="p-5 space-y-4"
+    >
+
+      <div>
+        <label for="spendingDate" class="block text-sm font-medium mb-1">
+          Date
+        </label>
+
+        <input
+          id="spendingDate"
+          type="date"
+          required
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        >
+      </div>
+
+
+      <div>
+        <label for="spendingCategory" class="block text-sm font-medium mb-1">
+          Category
+        </label>
+
+        <select
+          id="spendingCategory"
+          required
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        >
+          <option value="">Select category</option>
+          <option value="Food">Food</option>
+          <option value="Travel">Travel</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Recharge">Recharge</option>
+          <option value="Medicine">Medicine</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+
+      <div>
+        <label for="spendingDescription" class="block text-sm font-medium mb-1">
+          Item / Description
+        </label>
+
+        <input
+          id="spendingDescription"
+          type="text"
+          required
+          maxlength="150"
+          placeholder="e.g. Lunch, Petrol, T-shirt"
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        >
+      </div>
+
+
+      <div>
+        <label for="spendingAmount" class="block text-sm font-medium mb-1">
+          Amount (₹)
+        </label>
+
+        <input
+          id="spendingAmount"
+          type="number"
+          required
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="250"
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        >
+      </div>
+
+
+      <div>
+        <label for="spendingPaymentMethod" class="block text-sm font-medium mb-1">
+          Payment Method
+        </label>
+
+        <select
+          id="spendingPaymentMethod"
+          required
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        >
+          <option value="">Select payment method</option>
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Card">Card</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+
+      <div>
+        <label for="spendingNote" class="block text-sm font-medium mb-1">
+          Note (Optional)
+        </label>
+
+        <textarea
+          id="spendingNote"
+          rows="3"
+          maxlength="300"
+          placeholder="Optional note..."
+          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3"
+        ></textarea>
+      </div>
+
+
+      <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        This expense record does not affect Money Given, Money Received or outstanding balances.
+      </div>
+
+
+      <button
+        id="saveSpendingBtn"
+        type="submit"
+        class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold"
+      >
+        Save Spending
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PERSON DETAIL
+========================================================= -->
+
+<div
+  id="personDetailModal"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
+>
+
+  <div
+    class="w-full
+           max-w-2xl
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
+           max-h-[90vh]
+           overflow-y-auto"
+  >
+
+
+    <div
+      class="p-5
+             border-b
+             border-slate-200
+             dark:border-slate-800"
+    >
+
+      <div
+        class="flex
+               items-start
+               justify-between
+               gap-3"
+      >
+
+
+        <div
+          class="flex
+                 items-center
+                 gap-3"
+        >
+
+          <div
+            id="detailAvatar"
+            class="w-12 h-12
+                   rounded-full
+                   bg-primary-100
+                   dark:bg-primary-500/20
+                   text-primary-700
+                   flex
+                   items-center
+                   justify-center
+                   font-bold
+                   text-lg"
+          >
+            U
+          </div>
+
+
+          <div>
+
+            <h3
+              id="detailName"
+              class="font-bold
+                     text-lg"
+            >
+              Person
+            </h3>
+
+
+            <p
+              id="detailPhone"
+              class="text-sm
+                     text-slate-500"
+            >
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="closeDetailModal"
+          class="w-9 h-9
+                 rounded-lg
+                 bg-slate-100
+                 dark:bg-slate-800"
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+
+      <!-- Mini summary -->
+
+      <div
+        class="grid
+               grid-cols-3
+               gap-2
+               mt-5"
+      >
+
+        <div
+          class="p-3
+                 rounded-xl
+                 bg-red-50
+                 dark:bg-red-500/10"
+        >
+
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
+            Given
+          </p>
+
+
+          <p
+            id="detailGiven"
+            class="font-bold
+                   text-red-600
+                   mt-1"
+          >
+            ₹0
+          </p>
+
+        </div>
+
+
+        <div
+          class="p-3
+                 rounded-xl
+                 bg-emerald-50
+                 dark:bg-emerald-500/10"
+        >
+
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
+            Received
+          </p>
+
+
+          <p
+            id="detailReceived"
+            class="font-bold
+                   text-emerald-600
+                   mt-1"
+          >
+            ₹0
+          </p>
+
+        </div>
+
+
+        <div
+          class="p-3
+                 rounded-xl
+                 bg-blue-50
+                 dark:bg-blue-500/10"
+        >
+
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
+            Balance
+          </p>
+
+
+          <p
+            id="detailBalance"
+            class="font-bold
+                   text-primary-600
+                   mt-1"
+          >
+            ₹0
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- WhatsApp -->
+
+      <a
+        id="whatsappReminder"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        class="mt-4
+               w-full
+               flex
+               items-center
+               justify-center
+               gap-2
+               py-3
+               rounded-xl
+               bg-emerald-600
+               hover:bg-emerald-700
+               text-white
+               font-semibold"
+      >
+        💬 Send WhatsApp Reminder
+      </a>
+
+    </div>
+
+
+
+    <!-- Timeline -->
+
+    <div class="p-5">
+
+      <h4
+        class="font-bold
+               mb-4"
+      >
+        Transaction Timeline
+      </h4>
+
+
+      <div
+        id="detailTimeline"
+        class="space-y-4"
+      >
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     LOGIN SCREEN
+========================================================= -->
+
+<div
+  id="loginScreen"
+  class="fixed
+         inset-0
+         z-[100]
+         bg-slate-50
+         dark:bg-slate-950
+         flex
+         items-center
+         justify-center
+         p-4"
+>
+
+  <div
+    class="w-full
+           max-w-md"
+  >
+
+    <div
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
+             dark:border-slate-800
+             rounded-3xl
+             p-7 sm:p-9
+             shadow-2xl"
+    >
+
+      <div class="text-center">
+
+
+        <div
+          class="mx-auto
+                 w-16 h-16
+                 rounded-2xl
+                 bg-primary-600
+                 text-white
+                 flex
+                 items-center
+                 justify-center
+                 text-2xl
+                 font-extrabold"
+        >
+          TP
+        </div>
+
+
+        <h1
+          class="text-2xl
+                 sm:text-3xl
+                 font-extrabold
+                 mt-5"
+        >
+          Transaction Paper
+        </h1>
+
+
+        <p
+          class="text-sm
+                 text-slate-500
+                 mt-2"
+        >
+          Your secure personal financial ledger.
+        </p>
+
+      </div>
+
+
+
+      <button
+        id="googleLoginBtn"
+        class="mt-8
+               w-full
+               flex
+               items-center
+               justify-center
+               gap-3
+               px-5
+               py-3.5
+               rounded-xl
+               border
+               border-slate-300
+               dark:border-slate-700
+               bg-white
+               dark:bg-slate-800
+               hover:bg-slate-50
+               dark:hover:bg-slate-700
+               font-semibold
+               transition"
+      >
+
+
+        <svg
+          class="w-5 h-5"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+
+          <path
+            fill="#4285F4"
+            d="M21.35 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.22a4.46 4.46 0 0 1-1.94 2.93v2.43h3.14c1.84-1.69 2.93-4.18 2.93-7.19z"
+          />
+
+          <path
+            fill="#34A853"
+            d="M12 21.99c2.63 0 4.84-.87 6.45-2.36l-3.14-2.43c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.51A9.74 9.74 0 0 0 12 21.99z"
+          />
+
+          <path
+            fill="#FBBC05"
+            d="M6.54 14.09a5.86 5.86 0 0 1 0-3.76V7.82H3.3a9.99 9.99 0 0 0 0 8.78l3.24-2.51z"
+          />
+
+          <path
+            fill="#EA4335"
+            d="M12 6.3c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.34 14.62 2.47 12 2.47a9.74 9.74 0 0 0-8.7 5.35l3.24 2.51C7.31 8.02 9.46 6.3 12 6.3z"
+          />
+
+        </svg>
+
+
+        Continue with Google
+
+      </button>
+
+
+
+      <div
+        class="grid
+               grid-cols-3
+               gap-3
+               mt-7
+               text-center"
+      >
+
+        <div>
+
+          <div class="text-xl">
+            🔐
+          </div>
+
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
+            Secure
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <div class="text-xl">
+            ☁️
+          </div>
+
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
+            Cloud Sync
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <div class="text-xl">
+            📱
+          </div>
+
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
+            Mobile Ready
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <p
+        class="text-[11px]
+               text-center
+               text-slate-400
+               mt-7
+               leading-relaxed"
+      >
+        Transaction Paper is a personal ledger application.
+        Use it responsibly for your own financial records.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+  id="toast"
+  class="fixed
+         z-[200]
+         bottom-5
+         left-1/2
+         -translate-x-1/2
+         hidden"
+>
+
+  <div
+    id="toastText"
+    class="px-5
+           py-3
+           rounded-xl
+           bg-slate-900
+           dark:bg-white
+           text-white
+           dark:text-slate-900
+           shadow-2xl
+           text-sm
+           font-semibold"
+  >
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     APPLICATION SCRIPT
+========================================================= -->
+
+<script type="module">
+
+/* =========================================================
+   FIREBASE IMPORTS
+========================================================= */
+
+import {
+  initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  serverTimestamp
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyCr1-XBIc_5obn8uOgHfIjriElT3kaK1Io",
+
+  authDomain:
+    "transaction-paper.firebaseapp.com",
+
+  projectId:
+    "transaction-paper",
+
+  storageBucket:
+    "transaction-paper.firebasestorage.app",
+
+  messagingSenderId:
+    "128178860545",
+
+  appId:
+    "1:128178860545:web:ff3b5118e4e71a851d4600"
+
+};
+
+
+
+/* =========================================================
+   FIREBASE INITIALIZATION
+========================================================= */
+
+const firebaseApp =
+  initializeApp(
+    firebaseConfig
+  );
+
+
+const auth =
+  getAuth(
+    firebaseApp
+  );
+
+
+const db =
+  getFirestore(
+    firebaseApp
+  );
+
+
+const googleProvider =
+  new GoogleAuthProvider();
+
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let currentUser =
+  null;
+
+
+let people =
+  [];
+
+
+let transactions =
+  [];
+
+
+let spendings =
+  [];
+
+
+let deferredInstallPrompt =
+  null;
+
+
+
+/* =========================================================
+   HELPER
+========================================================= */
+
+const $ =
+  id =>
+    document.getElementById(
+      id
+    );
+
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(
+  message
+) {
+
+  const toast =
+    $("toast");
+
+
+  const text =
+    $("toastText");
+
+
+  if (
+    !toast ||
+    !text
+  ) {
+
+    return;
+
+  }
+
+
+  text.textContent =
+    message;
+
+
+  toast.classList.remove(
+    "hidden"
+  );
+
+
+  clearTimeout(
+    window.tpToastTimer
+  );
+
+
+  window.tpToastTimer =
+    setTimeout(
+      () =>
+        toast.classList.add(
+          "hidden"
+        ),
+      2800
+    );
+
+}
+
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function openModal(
+  id
+) {
+
+  const element =
+    $(id);
+
+
+  if (!element) {
+    return;
+  }
+
+
+  element.classList.remove(
+    "hidden"
+  );
+
+
+  element.classList.add(
+    "flex"
+  );
+
+}
+
+
+function closeModal(
+  id
+) {
+
+  const element =
+    $(id);
+
+
+  if (!element) {
+    return;
+  }
+
+
+  element.classList.add(
+    "hidden"
+  );
+
+
+  element.classList.remove(
+    "flex"
+  );
+
+}
+
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+function applyTheme(
+  theme
+) {
+
+  document.documentElement.classList.toggle(
+    "dark",
+    theme === "dark"
+  );
+
+
+  localStorage.setItem(
+    "transaction-paper-theme",
+    theme
+  );
+
+}
+
+
+const savedTheme =
+  localStorage.getItem(
+    "transaction-paper-theme"
+  );
+
+
+if (
+  savedTheme
+) {
+
+  applyTheme(
+    savedTheme
+  );
+
+} else if (
+  window.matchMedia?.(
+    "(prefers-color-scheme: dark)"
+  ).matches
+) {
+
+  applyTheme(
+    "dark"
+  );
+
+}
+
+
+function toggleTheme() {
+
+  const dark =
+    document.documentElement.classList.contains(
+      "dark"
+    );
+
+
+  applyTheme(
+    dark
+      ? "light"
+      : "dark"
+  );
+
+}
+
+
+$("desktopThemeBtn")
+  ?.addEventListener(
+    "click",
+    toggleTheme
+  );
+
+
+$("mobileThemeBtn")
+  ?.addEventListener(
+    "click",
+    toggleTheme
+  );
+
+
+$("settingsThemeBtn")
+  ?.addEventListener(
+    "click",
+    toggleTheme
+  );
+
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function openSidebar() {
+
+  $("sidebar")
+    ?.classList.remove(
+      "-translate-x-full"
+    );
+
+
+  $("sidebarOverlay")
+    ?.classList.remove(
+      "hidden"
+    );
+
+}
+
+
+function closeSidebar() {
+
+  $("sidebar")
+    ?.classList.add(
+      "-translate-x-full"
+    );
+
+
+  $("sidebarOverlay")
+    ?.classList.add(
+      "hidden"
+    );
+
+}
+
+
+$("mobileMenuBtn")
+  ?.addEventListener(
+    "click",
+    openSidebar
+  );
+
+
+$("sidebarOverlay")
+  ?.addEventListener(
+    "click",
+    closeSidebar
+  );
+
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+const pageIds = [
+  "dashboard",
+  "people",
+  "transactions",
+  "spending",
+  "reports",
+  "settings"
+];
+
+
+const pageTitles = {
+
+  dashboard:
+    "Dashboard",
+
+  people:
+    "People",
+
+  transactions:
+    "Transactions",
+
+  spending:
+    "Daily Spending",
+
+  reports:
+    "Reports",
+
+  settings:
+    "Settings"
+
+};
+
+
+function showPage(
+  page
+) {
+
+  pageIds.forEach(
+    name => {
+
+      const section =
+        $(
+          name +
+          "Page"
+        );
+
+
+      if (!section) {
+        return;
+      }
+
+
+      section.classList.toggle(
+        "hidden-page",
+        name !== page
+      );
+
+    }
+  );
+
+
+  document
+    .querySelectorAll(
+      ".nav-item"
+    )
+    .forEach(
+      button => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.page ===
+          page
+        );
+
+      }
+    );
+
+
+  if (
+    $("pageTitle")
+  ) {
+
+    $("pageTitle").textContent =
+      pageTitles[page] ||
+      "Transaction Paper";
+
+  }
+
+
+  closeSidebar();
+
+
+  if (
+    page ===
+    "people"
+  ) {
+
+    renderPeople();
+
+  }
+
+
+  if (
+    page ===
+    "transactions"
+  ) {
+
+    renderTransactions();
+
+  }
+
+
+  if (
+    page ===
+    "spending"
+  ) {
+
+    renderDailySpending();
+
+  }
+
+
+  if (
+    page ===
+    "reports"
+  ) {
+
+    renderReportSelect();
+
+  }
+
+}
+
+
+document
+  .querySelectorAll(
+    ".nav-item"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () =>
+          showPage(
+            button.dataset.page
+          )
+      );
+
+    }
+  );
+
+
+$("viewPeopleBtn")
+  ?.addEventListener(
+    "click",
+    () =>
+      showPage(
+        "people"
+      )
+  );
+
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function todayISO() {
+
+  return new Date()
+    .toISOString()
+    .slice(
+      0,
+      10
+    );
+
+}
+
+
+$("transactionDate").value =
+  todayISO();
+
+
+/* =========================================================
+   PAYMENT REFERENCE HELPER
+========================================================= */
+
+function updatePaymentReferenceField() {
+
+  const mode = $("transactionMode")?.value || "";
+  const input = $("transactionReference");
+  const help = $("transactionReferenceHelp");
+
+  if (!input) return;
+
+  const digitalMode =
+    mode === "UPI" ||
+    mode === "Bank Transfer" ||
+    mode === "Cheque";
+
+  input.required = digitalMode;
+
+  if (mode === "UPI") {
+    input.placeholder = "Paste Paytm / GPay / PhonePe UPI Transaction ID";
+    if (help) help.textContent = "Open the payment details in your UPI app and copy the UPI Transaction ID here.";
+  } else if (mode === "Bank Transfer") {
+    input.placeholder = "Paste bank UTR / transaction reference";
+    if (help) help.textContent = "Copy the UTR or bank transaction reference from your bank statement/payment details.";
+  } else if (mode === "Cheque") {
+    input.placeholder = "Enter cheque number";
+    if (help) help.textContent = "Enter the cheque number used for this transaction.";
+  } else if (mode === "Cash") {
+    input.placeholder = "Not required for cash";
+    if (help) help.textContent = "Cash transactions can be supported with a signed/written acknowledgement separately.";
+  } else {
+    input.placeholder = "Optional payment reference";
+    if (help) help.textContent = "Use this field for any available payment reference.";
+  }
+
+}
+
+$("transactionMode")?.addEventListener("change", updatePaymentReferenceField);
+updatePaymentReferenceField();
+
+
+/* =========================================================
+   TRANSACTION CODE
+========================================================= */
+
+function makeTransactionCode() {
+
+  const d = new Date();
+  const pad = value => String(value).padStart(2, "0");
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+
+  return (
+    "TP-TXN-" +
+    d.getFullYear() +
+    pad(d.getMonth() + 1) +
+    pad(d.getDate()) +
+    "-" +
+    pad(d.getHours()) +
+    pad(d.getMinutes()) +
+    pad(d.getSeconds()) +
+    "-" +
+    random
+  );
+
+}
+
+
+
+/* =========================================================
+   CURRENCY
+========================================================= */
+
+function formatINR(
+  amount
+) {
+
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style:
+        "currency",
+
+      currency:
+        "INR",
+
+      minimumFractionDigits:
+        2,
+
+      maximumFractionDigits:
+        2
+    }
+  ).format(
+    Number(
+      amount || 0
+    )
+  );
+
+}
+
+
+function pdfINR(
+  amount
+) {
+
+  return (
+    "INR " +
+    Number(
+      amount || 0
+    ).toLocaleString(
+      "en-IN",
+      {
+        minimumFractionDigits:
+          2,
+
+        maximumFractionDigits:
+          2
+      }
+    )
+  );
+
+}
+
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(
+  value
+) {
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+
+/* =========================================================
+   FIRESTORE REFERENCES
+========================================================= */
+
+function peopleCollection() {
+
+  if (!currentUser) {
+    throw new Error(
+      "User not authenticated."
+    );
+  }
+
+
+  return collection(
+    db,
+    "users",
+    currentUser.uid,
+    "people"
+  );
+
+}
+
+
+function transactionsCollection() {
+
+  if (!currentUser) {
+    throw new Error(
+      "User not authenticated."
+    );
+  }
+
+
+  return collection(
+    db,
+    "users",
+    currentUser.uid,
+    "transactions"
+  );
+
+}
+
+
+
+
+/* =========================================================
+   DAILY SPENDING FIRESTORE
+========================================================= */
+
+function spendingCollection() {
+
+  if (!currentUser) {
+    throw new Error(
+      "User not authenticated."
+    );
+  }
+
+  return collection(
+    db,
+    "users",
+    currentUser.uid,
+    "spendings"
+  );
+
+}
+
+
+
+/* =========================================================
+   GOOGLE LOGIN
+========================================================= */
+
+$("googleLoginBtn")
+  ?.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        showToast(
+          "Opening Google sign-in..."
+        );
+
+
+        await signInWithPopup(
+          auth,
+          googleProvider
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Google sign-in error:",
+          error
+        );
+
+
+        if (
+          error.code ===
+          "auth/popup-blocked"
+        ) {
+
+          try {
+
+            await signInWithRedirect(
+              auth,
+              googleProvider
+            );
+
+          } catch (
+            redirectError
+          ) {
+
+            console.error(
+              redirectError
+            );
+
+
+            showToast(
+              "Google sign-in could not start."
+            );
+
+          }
+
+
+          return;
+
+        }
+
+
+        if (
+          error.code !==
+          "auth/popup-closed-by-user"
+        ) {
+
+          showToast(
+            error.message ||
+            "Google sign-in failed."
+          );
+
+        }
+
+      }
+
+    }
+  );
+
+
+
+/* =========================================================
+   SIGN OUT
+========================================================= */
+
+$("logoutBtn")
+  ?.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await signOut(
+          auth
+        );
+
+
+        showToast(
+          "Signed out successfully."
+        );
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          error
+        );
+
+
+        showToast(
+          "Sign out failed."
+        );
+
+      }
+
+    }
+  );
+
+
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+onAuthStateChanged(
+  auth,
+  async user => {
+
+    currentUser =
+      user ||
+      null;
+
+
+    if (!user) {
+
+      $("loginScreen")
+        ?.classList.remove(
+          "hidden"
+        );
+
+
+      people =
+        [];
+
+
+      transactions =
+        [];
+
+
+      spendings =
+        [];
+
+
+      renderEverything();
+
+
+      return;
+
+    }
+
+
+    $("loginScreen")
+      ?.classList.add(
+        "hidden"
+      );
+
+
+    updateUserProfile(
+      user
+    );
+
+
+    try {
+
+      await loadPeople();
+
+      await loadTransactions();
+
+      await loadSpendings();
+
+      renderEverything();
+
+
+    } catch (
+      error
+    ) {
+
+      console.error(
+        "Cloud loading error:",
+        error
+      );
+
+
+      showToast(
+        "Could not load your cloud records."
+      );
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   USER UI
+========================================================= */
+
+function updateUserProfile(
+  user
+) {
+
+  const name =
+    user.displayName ||
+    "User";
+
+
+  const email =
+    user.email ||
+    "";
+
+
+  const photo =
+    user.photoURL ||
+    (
+      "https://ui-avatars.com/api/?name=" +
+      encodeURIComponent(
+        name
+      ) +
+      "&background=2563eb&color=fff"
+    );
+
+
+  if (
+    $("sidebarUserName")
+  ) {
+
+    $("sidebarUserName").textContent =
+      name;
+
+  }
+
+
+  if (
+    $("sidebarUserEmail")
+  ) {
+
+    $("sidebarUserEmail").textContent =
+      email;
+
+  }
+
+
+  if (
+    $("sidebarUserPhoto")
+  ) {
+
+    $("sidebarUserPhoto").src =
+      photo;
+
+  }
+
+
+  if (
+    $("settingsName")
+  ) {
+
+    $("settingsName").textContent =
+      name;
+
+  }
+
+
+  if (
+    $("settingsEmail")
+  ) {
+
+    $("settingsEmail").textContent =
+      email;
+
+  }
+
+
+  if (
+    $("settingsPhoto")
+  ) {
+
+    $("settingsPhoto").src =
+      photo;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   LOAD PEOPLE
+========================================================= */
+
+async function loadPeople() {
+
+  const snapshot =
+    await getDocs(
+      peopleCollection()
+    );
+
+
+  people =
+    snapshot.docs.map(
+      docSnap => ({
+
+        id:
+          docSnap.id,
+
+        ...docSnap.data()
+
+      })
+    );
+
+
+  people.sort(
+    (a, b) => {
+
+      const aTime =
+        Number(
+          a.createdAt?.seconds ||
+          0
+        );
+
+
+      const bTime =
+        Number(
+          b.createdAt?.seconds ||
+          0
+        );
+
+
+      return (
+        bTime -
+        aTime
+      );
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   LOAD TRANSACTIONS
+========================================================= */
+
+async function loadTransactions() {
+
+  const snapshot =
+    await getDocs(
+      transactionsCollection()
+    );
+
+
+  transactions =
+    snapshot.docs.map(
+      docSnap => ({
+
+        id:
+          docSnap.id,
+
+        ...docSnap.data()
+
+      })
+    );
+
+
+  transactions.sort(
+    (a, b) =>
+      String(
+        b.date ||
+        ""
+      ).localeCompare(
+        String(
+          a.date ||
+          ""
+        )
+      ) ||
+      Number(
+        b.createdAt?.seconds ||
+        0
+      ) -
+      Number(
+        a.createdAt?.seconds ||
+        0
+      )
+  );
+
+}
+
+
+
+
+/* =========================================================
+   LOAD DAILY SPENDING
+========================================================= */
+
+async function loadSpendings() {
+
+  const snapshot =
+    await getDocs(
+      spendingCollection()
+    );
+
+  spendings =
+    snapshot.docs.map(
+      docSnap => ({
+
+        id:
+          docSnap.id,
+
+        ...docSnap.data()
+
+      })
+    );
+
+  spendings.sort(
+    (a, b) =>
+      String(
+        b.date ||
+        ""
+      ).localeCompare(
+        String(
+          a.date ||
+          ""
+        )
+      ) ||
+      Number(
+        b.createdAt?.seconds ||
+        0
+      ) -
+      Number(
+        a.createdAt?.seconds ||
+        0
+      )
+  );
+
+}
+
+
+
+/* =========================================================
+   DAILY SPENDING SUMMARY
+========================================================= */
+
+function getDailySpendingSummary() {
+
+  const today =
+    todayISO();
+
+  const monthPrefix =
+    today.slice(
+      0,
+      7
+    );
+
+  let todayTotal =
+    0;
+
+  let monthTotal =
+    0;
+
+  const dayTotals =
+    {};
+
+  spendings.forEach(
+    item => {
+
+      const amount =
+        Number(
+          item.amount ||
+          0
+        );
+
+      const date =
+        String(
+          item.date ||
+          ""
+        );
+
+      if (
+        date ===
+        today
+      ) {
+        todayTotal +=
+          amount;
+      }
+
+      if (
+        date.startsWith(
+          monthPrefix
+        )
+      ) {
+        monthTotal +=
+          amount;
+      }
+
+      if (date) {
+        dayTotals[date] =
+          (
+            dayTotals[date] ||
+            0
+          ) +
+          amount;
+      }
+
+    }
+  );
+
+  const recordedDays =
+    Object.keys(
+      dayTotals
+    ).length;
+
+  const average =
+    recordedDays > 0
+      ? monthTotal /
+        recordedDays
+      : 0;
+
+  return {
+    todayTotal,
+    monthTotal,
+    average,
+    dayTotals
+  };
+
+}
+
+
+
+/* =========================================================
+   RENDER DAILY SPENDING
+========================================================= */
+
+function renderDailySpending() {
+
+  const box =
+    $("spendingList");
+
+  if (!box) {
+    return;
+  }
+
+  const summary =
+    getDailySpendingSummary();
+
+  if ($("spendingToday")) {
+    $("spendingToday").textContent =
+      formatINR(
+        summary.todayTotal
+      );
+  }
+
+  if ($("spendingMonth")) {
+    $("spendingMonth").textContent =
+      formatINR(
+        summary.monthTotal
+      );
+  }
+
+  if ($("spendingAverage")) {
+    $("spendingAverage").textContent =
+      formatINR(
+        summary.average
+      );
+  }
+
+  const search =
+    (
+      $("spendingSearch")
+        ?.value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const category =
+    $("spendingCategoryFilter")
+      ?.value ||
+    "all";
+
+  const month =
+    $("spendingDateFilter")
+      ?.value ||
+    "";
+
+  const list =
+    spendings.filter(
+      item => {
+
+        const searchable =
+          [
+            item.description,
+            item.category,
+            item.paymentMethod,
+            item.note,
+            item.spendingCode
+          ]
+            .join(" ")
+            .toLowerCase();
+
+        const matchesSearch =
+          !search ||
+          searchable.includes(
+            search
+          );
+
+        const matchesCategory =
+          category === "all" ||
+          item.category ===
+          category;
+
+        const matchesMonth =
+          !month ||
+          String(
+            item.date ||
+            ""
+          ).startsWith(
+            month
+          );
+
+        return (
+          matchesSearch &&
+          matchesCategory &&
+          matchesMonth
+        );
+
+      }
+    );
+
+  if (
+    list.length ===
+    0
+  ) {
+
+    box.innerHTML = `
+      <div class="p-10 text-center text-slate-500">
+        <div class="text-4xl mb-3">🧾</div>
+        <p class="font-semibold">
+          No spending records found.
+        </p>
+        <p class="text-sm mt-1">
+          Add your first personal expense.
+        </p>
+      </div>
+    `;
+
+    return;
+
+  }
+
+  box.innerHTML =
+    list.map(
+      item => {
+
+        const method =
+          item.paymentMethod ||
+          "Not recorded";
+
+        return `
+          <div class="p-4 sm:p-5">
+
+            <div class="flex items-start gap-3">
+
+              <div class="w-11 h-11 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-xl">
+                🧾
+              </div>
+
+              <div class="flex-1 min-w-0">
+
+                <div class="flex items-start justify-between gap-3">
+
+                  <div class="min-w-0">
+
+                    <p class="font-bold truncate">
+                      ${escapeHTML(
+                        item.description ||
+                        "Expense"
+                      )}
+                    </p>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                      ${escapeHTML(
+                        item.date ||
+                        ""
+                      )}
+                      •
+                      ${escapeHTML(
+                        item.category ||
+                        "Other"
+                      )}
+                    </p>
+
+                  </div>
+
+                  <p class="font-extrabold text-orange-600 whitespace-nowrap">
+                    ${formatINR(
+                      item.amount
+                    )}
+                  </p>
+
+                </div>
+
+                <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span>
+                    Payment: ${escapeHTML(
+                      method
+                    )}
+                  </span>
+
+                  <span>
+                    ID: ${escapeHTML(
+                      item.spendingCode ||
+                      item.id ||
+                      ""
+                    )}
+                  </span>
+                </div>
+
+                ${
+                  item.note
+                    ? `
+                      <p class="text-sm text-slate-500 mt-2">
+                        ${escapeHTML(
+                          item.note
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+
+/* =========================================================
+   DAILY SPENDING PDF
+========================================================= */
+
+function generateSpendingPDF() {
+
+  try {
+
+    if (
+      !window.jspdf ||
+      !window.jspdf.jsPDF
+    ) {
+
+      throw new Error(
+        "jsPDF library unavailable."
+      );
+
+    }
+
+    showToast(
+      "Preparing expense report..."
+    );
+
+    const {
+      jsPDF
+    } =
+      window.jspdf;
+
+    const pdf =
+      new jsPDF(
+        {
+          orientation:
+            "portrait",
+          unit:
+            "mm",
+          format:
+            "a4"
+        }
+      );
+
+    const list =
+      [
+        ...spendings
+      ].sort(
+        (a, b) =>
+          String(
+            a.date ||
+            ""
+          ).localeCompare(
+            String(
+              b.date ||
+              ""
+            )
+          )
+      );
+
+    const total =
+      list.reduce(
+        (
+          sum,
+          item
+        ) =>
+          sum +
+          Number(
+            item.amount ||
+            0
+          ),
+        0
+      );
+
+    const generatedDate =
+      new Date();
+
+    const dateText =
+      generatedDate
+        .toLocaleDateString(
+          "en-IN"
+        );
+
+    const pageWidth =
+      210;
+
+    const pageHeight =
+      297;
+
+    const left =
+      15;
+
+    const right =
+      195;
+
+    let y =
+      0;
+
+    pdf.setFillColor(
+      24,
+      55,
+      110
+    );
+
+    pdf.rect(
+      0,
+      0,
+      pageWidth,
+      34,
+      "F"
+    );
+
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    pdf.setFontSize(
+      18
+    );
+
+    pdf.text(
+      "TRANSACTION PAPER",
+      left,
+      16
+    );
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+    pdf.setFontSize(
+      8
+    );
+
+    pdf.text(
+      "PERSONAL DAILY SPENDING REPORT",
+      left,
+      23
+    );
+
+    pdf.text(
+      `Generated: ${dateText}`,
+      right,
+      16,
+      {
+        align:
+          "right"
+      }
+    );
+
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    );
+
+    y =
+      46;
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    pdf.setFontSize(
+      11
+    );
+
+    pdf.text(
+      "EXPENSE SUMMARY",
+      left,
+      y
+    );
+
+    y +=
+      7;
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+    pdf.setFontSize(
+      8.5
+    );
+
+    pdf.text(
+      `Total recorded spending: ${pdfINR(total)}`,
+      left,
+      y
+    );
+
+    y +=
+      9;
+
+    function drawExpenseHeader(
+      startY
+    ) {
+
+      pdf.setFillColor(
+        24,
+        55,
+        110
+      );
+
+      pdf.rect(
+        left,
+        startY,
+        180,
+        10,
+        "F"
+      );
+
+      pdf.setTextColor(
+        255,
+        255,
+        255
+      );
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+      pdf.setFontSize(
+        7
+      );
+
+      pdf.text(
+        "DATE",
+        18,
+        startY + 6.5
+      );
+
+      pdf.text(
+        "CATEGORY / DESCRIPTION",
+        48,
+        startY + 6.5
+      );
+
+      pdf.text(
+        "PAYMENT",
+        135,
+        startY + 6.5
+      );
+
+      pdf.text(
+        "AMOUNT",
+        168,
+        startY + 6.5
+      );
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+      return (
+        startY +
+        10
+      );
+
+    }
+
+    y =
+      drawExpenseHeader(
+        y
+      );
+
+    list.forEach(
+      (
+        item,
+        index
+      ) => {
+
+        if (
+          y >
+          267
+        ) {
+
+          pdf.addPage();
+
+          y =
+            20;
+
+          y =
+            drawExpenseHeader(
+              y
+            );
+
+        }
+
+        if (
+          index %
+          2 ===
+          0
+        ) {
+
+          pdf.setFillColor(
+            248,
+            250,
+            252
+          );
+
+          pdf.rect(
+            left,
+            y,
+            180,
+            10,
+            "F"
+          );
+
+        }
+
+        pdf.setDrawColor(
+          225,
+          228,
+          235
+        );
+
+        pdf.line(
+          left,
+          y + 10,
+          right,
+          y + 10
+        );
+
+        pdf.setFont(
+          "helvetica",
+          "normal"
+        );
+
+        pdf.setFontSize(
+          7
+        );
+
+        pdf.text(
+          String(
+            item.date ||
+            ""
+          ),
+          18,
+          y + 6.5
+        );
+
+        const desc =
+          (
+            String(
+              item.category ||
+              "Other"
+            ) +
+            " / " +
+            String(
+              item.description ||
+              "Expense"
+            )
+          )
+            .replace(
+              /[\r\n]+/g,
+              " "
+            )
+            .slice(
+              0,
+              42
+            );
+
+        pdf.text(
+          desc,
+          48,
+          y + 6.5
+        );
+
+        pdf.text(
+          String(
+            item.paymentMethod ||
+            "-"
+          )
+            .slice(
+              0,
+              16
+            ),
+          135,
+          y + 6.5
+        );
+
+        pdf.setFont(
+          "helvetica",
+          "bold"
+        );
+
+        pdf.text(
+          pdfINR(
+            item.amount
+          ),
+          168,
+          y + 6.5
+        );
+
+        y +=
+          10;
+
+      }
+    );
+
+    if (
+      list.length ===
+      0
+    ) {
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      pdf.setFontSize(
+        8
+      );
+
+      pdf.text(
+        "No spending records recorded.",
+        105,
+        y + 12,
+        {
+          align:
+            "center"
+        }
+      );
+
+      y +=
+        20;
+
+    }
+
+    if (
+      y >
+      250
+    ) {
+
+      pdf.addPage();
+
+      y =
+        25;
+
+    } else {
+
+      y +=
+        8;
+
+    }
+
+    pdf.setFillColor(
+      24,
+      55,
+      110
+    );
+
+    pdf.roundedRect(
+      115,
+      y,
+      80,
+      24,
+      3,
+      3,
+      "F"
+    );
+
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    pdf.setFontSize(
+      8
+    );
+
+    pdf.text(
+      "TOTAL SPENDING",
+      120,
+      y + 8
+    );
+
+    pdf.setFontSize(
+      12
+    );
+
+    pdf.text(
+      pdfINR(total),
+      120,
+      y + 18
+    );
+
+    const totalPages =
+      pdf.internal.getNumberOfPages();
+
+    for (
+      let page =
+        1;
+      page <=
+        totalPages;
+      page++
+    ) {
+
+      pdf.setPage(
+        page
+      );
+
+      pdf.setDrawColor(
+        210,
+        214,
+        222
+      );
+
+      pdf.line(
+        15,
+        pageHeight - 17,
+        195,
+        pageHeight - 17
+      );
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      pdf.setFontSize(
+        6.8
+      );
+
+      pdf.setTextColor(
+        105,
+        110,
+        120
+      );
+
+      pdf.text(
+        "Generated electronically by Transaction Paper",
+        15,
+        pageHeight - 10
+      );
+
+      pdf.text(
+        "Created by Upen Gowala",
+        15,
+        pageHeight - 6
+      );
+
+      pdf.text(
+        `Page ${page} of ${totalPages}`,
+        195,
+        pageHeight - 8,
+        {
+          align:
+            "right"
+        }
+      );
+
+    }
+
+    pdf.save(
+      "transaction-paper-daily-spending-report.pdf"
+    );
+
+    showToast(
+      "Expense PDF downloaded successfully."
+    );
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      "Spending PDF error:",
+      error
+    );
+
+    showToast(
+      "Expense PDF could not be generated."
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   PERSON SUMMARY
+========================================================= */
+
+function getSummary(
+  personId
+) {
+
+  let given =
+    0;
+
+
+  let received =
+    0;
+
+
+  const personTransactions =
+    transactions.filter(
+      transaction =>
+        transaction.personId ===
+        personId
+    );
+
+
+  for (
+    const transaction
+    of personTransactions
+  ) {
+
+    const amount =
+      Number(
+        transaction.amount ||
+        0
+      );
+
+
+    if (
+      transaction.type ===
+      "given"
+    ) {
+
+      given +=
+        amount;
+
+    }
+
+
+    if (
+      transaction.type ===
+      "received"
+    ) {
+
+      received +=
+        amount;
+
+    }
+
+  }
+
+
+  return {
+
+    given,
+
+    received,
+
+    balance:
+      given -
+      received,
+
+    transactions:
+      personTransactions
+
+  };
+
+}
+
+
+
+/* =========================================================
+   DASHBOARD RENDER
+========================================================= */
+
+function renderDashboard() {
+
+  let totalGiven =
+    0;
+
+
+  let totalReceived =
+    0;
+
+
+  for (
+    const transaction
+    of transactions
+  ) {
+
+    if (
+      transaction.type ===
+      "given"
+    ) {
+
+      totalGiven +=
+        Number(
+          transaction.amount ||
+          0
+        );
+
+    }
+
+
+    if (
+      transaction.type ===
+      "received"
+    ) {
+
+      totalReceived +=
+        Number(
+          transaction.amount ||
+          0
+        );
+
+    }
+
+  }
+
+
+  $("totalGiven").textContent =
+    formatINR(
+      totalGiven
+    );
+
+
+  $("totalReceived").textContent =
+    formatINR(
+      totalReceived
+    );
+
+
+  $("netBalance").textContent =
+    formatINR(
+      totalGiven -
+      totalReceived
+    );
+
+
+  renderDashboardPeople();
+
+}
+
+
+
+/* =========================================================
+   DASHBOARD PEOPLE
+========================================================= */
+
+function renderDashboardPeople() {
+
+  const box =
+    $("dashboardPeople");
+
+
+  if (!box) {
+    return;
+  }
+
+
+  const search =
+    (
+      $("dashboardSearch")
+        ?.value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const list =
+    people.filter(
+      person =>
+        !search ||
+        String(
+          person.name ||
+          ""
+        )
+          .toLowerCase()
+          .includes(
+            search
+          ) ||
+        String(
+          person.phone ||
+          ""
+        )
+          .toLowerCase()
+          .includes(
+            search
+          )
+    );
+
+
+  if (
+    list.length ===
+    0
+  ) {
+
+    box.innerHTML = `
+
+      <div
+        class="p-10
+               text-center"
+      >
+
+        <div
+          class="text-4xl
+                 mb-3"
+        >
+          👥
+        </div>
+
+
+        <p
+          class="font-bold"
+        >
+          No accounts yet
+        </p>
+
+
+        <p
+          class="text-sm
+                 text-slate-500
+                 mt-1"
+        >
+          Add your first person to start tracking.
+        </p>
+
+
+        <button
+          id="dashboardAddPerson"
+          class="mt-4
+                 px-4 py-2.5
+                 rounded-xl
+                 bg-primary-600
+                 text-white
+                 font-semibold"
+        >
+          + Add Person
+        </button>
+
+      </div>
+
+    `;
+
+
+    $("dashboardAddPerson")
+      ?.addEventListener(
+        "click",
+        () =>
+          openModal(
+            "personModal"
+          )
+      );
+
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    list
+      .slice(
+        0,
+        8
+      )
+      .map(
+        person => {
+
+          const summary =
+            getSummary(
+              person.id
+            );
+
+
+          const due =
+            summary.balance >
+            0;
+
+
+          return `
+
+            <button
+              class="w-full
+                     p-4
+                     text-left
+                     hover:bg-slate-50
+                     dark:hover:bg-slate-800
+                     transition"
+              data-dashboard-person="${person.id}"
+            >
+
+              <div
+                class="flex
+                       items-center
+                       gap-3"
+              >
+
+                <div
+                  class="w-11 h-11
+                         rounded-full
+                         bg-primary-100
+                         dark:bg-primary-500/20
+                         text-primary-700
+                         dark:text-primary-400
+                         flex
+                         items-center
+                         justify-center
+                         font-bold"
+                >
+                  ${escapeHTML(
+                    (
+                      person.name ||
+                      "U"
+                    )
+                      .charAt(
+                        0
+                      )
+                      .toUpperCase()
+                  )}
+                </div>
+
+
+                <div
+                  class="flex-1
+                         min-w-0"
+                >
+
+                  <p
+                    class="font-semibold
+                           truncate"
+                  >
+                    ${escapeHTML(
+                      person.name
+                    )}
+                  </p>
+
+
+                  <p
+                    class="text-xs
+                           text-slate-500"
+                  >
+                    ${escapeHTML(
+                      person.phone ||
+                      "No phone"
+                    )}
+                  </p>
+
+                </div>
+
+
+                <div
+                  class="text-right"
+                >
+
+                  <p
+                    class="font-bold"
+                  >
+                    ${formatINR(
+                      summary.balance
+                    )}
+                  </p>
+
+
+                  <p
+                    class="text-[11px]
+                           font-semibold
+                           ${
+                             due
+                               ? "text-red-600"
+                               : "text-emerald-600"
+                           }"
+                  >
+                    ${
+                      due
+                        ? "Dues"
+                        : "Settled"
+                    }
+                  </p>
+
+                </div>
+
+              </div>
+
+            </button>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  document
+    .querySelectorAll(
+      "[data-dashboard-person]"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            openPersonDetail(
+              button.dataset.dashboardPerson
+            )
+        );
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   PEOPLE PAGE
+========================================================= */
+
+function renderPeople() {
+
+  const grid =
+    $("peopleGrid");
+
+
+  if (!grid) {
+    return;
+  }
+
+
+  let list =
+    [...people];
+
+
+  const search =
+    (
+      $("peopleSearch")
+        ?.value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const status =
+    $("peopleStatus")
+      ?.value ||
+    "all";
+
+
+  const sort =
+    $("peopleSort")
+      ?.value ||
+    "name";
+
+
+  list =
+    list.filter(
+      person => {
+
+        const summary =
+          getSummary(
+            person.id
+          );
+
+
+        const due =
+          summary.balance >
+          0;
+
+
+        const matchesSearch =
+          !search ||
+          String(
+            person.name ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              search
+            ) ||
+          String(
+            person.phone ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              search
+            );
+
+
+        const matchesStatus =
+          status ===
+          "all" ||
+          (
+            status ===
+            "due" &&
+            due
+          ) ||
+          (
+            status ===
+            "settled" &&
+            !due
+          );
+
+
+        return (
+          matchesSearch &&
+          matchesStatus
+        );
+
+      }
+    );
+
+
+  if (
+    sort ===
+    "name"
+  ) {
+
+    list.sort(
+      (a, b) =>
+        String(
+          a.name ||
+          ""
+        ).localeCompare(
+          String(
+            b.name ||
+            ""
+          )
+        )
+    );
+
+  }
+
+
+  if (
+    sort ===
+    "balance"
+  ) {
+
+    list.sort(
+      (a, b) =>
+        getSummary(
+          b.id
+        ).balance -
+        getSummary(
+          a.id
+        ).balance
+    );
+
+  }
+
+
+  if (
+    sort ===
+    "recent"
+  ) {
+
+    list.sort(
+      (a, b) =>
+        Number(
+          b.createdAt?.seconds ||
+          0
+        ) -
+        Number(
+          a.createdAt?.seconds ||
+          0
+        )
+    );
+
+  }
+
+
+  if (
+    list.length ===
+    0
+  ) {
+
+    grid.innerHTML = `
+
+      <div
+        class="md:col-span-2
+               xl:col-span-3
+               bg-white
+               dark:bg-slate-900
+               border
+               border-slate-200
+               dark:border-slate-800
+               rounded-2xl
+               p-10
+               text-center"
+      >
+
+        <div
+          class="text-4xl
+                 mb-3"
+        >
+          👥
+        </div>
+
+        <p
+          class="font-bold"
+        >
+          No people found.
+        </p>
+
+
+        <p
+          class="text-sm
+                 text-slate-500
+                 mt-1"
+        >
+          Try changing your search or filters.
+        </p>
+
+      </div>
+
+    `;
+
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    list
+      .map(
+        person => {
+
+          const summary =
+            getSummary(
+              person.id
+            );
+
+
+          const due =
+            summary.balance >
+            0;
+
+
+          const whatsapp =
+            makeWhatsAppLink(
+              person,
+              summary.balance
+            );
+
+
+          return `
+
+            <div
+              class="bg-white
+                     dark:bg-slate-900
+                     border
+                     border-slate-200
+                     dark:border-slate-800
+                     rounded-2xl
+                     p-5"
+            >
+
+              <div
+                class="flex
+                       items-center
+                       gap-3"
+              >
+
+                <div
+                  class="w-12 h-12
+                         rounded-full
+                         bg-primary-100
+                         dark:bg-primary-500/20
+                         text-primary-700
+                         flex
+                         items-center
+                         justify-center
+                         font-bold
+                         text-lg"
+                >
+                  ${escapeHTML(
+                    (
+                      person.name ||
+                      "U"
+                    )
+                      .charAt(
+                        0
+                      )
+                      .toUpperCase()
+                  )}
+                </div>
+
+
+                <div
+                  class="flex-1
+                         min-w-0"
+                >
+
+                  <h3
+                    class="font-bold
+                           truncate"
+                  >
+                    ${escapeHTML(
+                      person.name
+                    )}
+                  </h3>
+
+
+                  <p
+                    class="text-sm
+                           text-slate-500
+                           truncate"
+                  >
+                    ${escapeHTML(
+                      person.phone ||
+                      "No phone"
+                    )}
+                  </p>
+
+                </div>
+
+
+                <span
+                  class="status-pill ${
+                    due
+                      ? "status-due"
+                      : "status-settled"
+                  }"
+                >
+                  ${
+                    due
+                      ? "Dues"
+                      : "Settled"
+                  }
+                </span>
+
+              </div>
+
+
+
+              <div
+                class="grid
+                       grid-cols-3
+                       gap-2
+                       mt-5"
+              >
+
+                <div
+                  class="p-3
+                         rounded-xl
+                         bg-red-50
+                         dark:bg-red-500/10"
+                >
+
+                  <p
+                    class="text-[11px]
+                           text-slate-500"
+                  >
+                    Given
+                  </p>
+
+
+                  <p
+                    class="text-sm
+                           font-bold
+                           mt-1"
+                  >
+                    ${formatINR(
+                      summary.given
+                    )}
+                  </p>
+
+                </div>
+
+
+                <div
+                  class="p-3
+                         rounded-xl
+                         bg-emerald-50
+                         dark:bg-emerald-500/10"
+                >
+
+                  <p
+                    class="text-[11px]
+                           text-slate-500"
+                  >
+                    Received
+                  </p>
+
+
+                  <p
+                    class="text-sm
+                           font-bold
+                           mt-1"
+                  >
+                    ${formatINR(
+                      summary.received
+                    )}
+                  </p>
+
+                </div>
+
+
+                <div
+                  class="p-3
+                         rounded-xl
+                         bg-blue-50
+                         dark:bg-blue-500/10"
+                >
+
+                  <p
+                    class="text-[11px]
+                           text-slate-500"
+                  >
+                    Balance
+                  </p>
+
+
+                  <p
+                    class="text-sm
+                           font-bold
+                           mt-1"
+                  >
+                    ${formatINR(
+                      summary.balance
+                    )}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+
+              <div
+                class="flex
+                       gap-2
+                       mt-5"
+              >
+
+                <button
+                  class="open-ledger
+                         flex-1
+                         px-3 py-2.5
+                         rounded-xl
+                         bg-primary-600
+                         text-white
+                         text-sm
+                         font-semibold"
+                  data-person-id="${person.id}"
+                >
+                  View Ledger
+                </button>
+
+
+                ${
+                  person.phone
+                    ? `
+                      <a
+                        href="${whatsapp}"
+                        target="_blank"
+                        rel="noopener"
+                        class="px-3
+                               py-2.5
+                               rounded-xl
+                               border
+                               border-slate-200
+                               dark:border-slate-700
+                               text-sm
+                               font-semibold"
+                      >
+                        WhatsApp
+                      </a>
+                    `
+                    : ""
+                }
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  document
+    .querySelectorAll(
+      ".open-ledger"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            openPersonDetail(
+              button.dataset.personId
+            )
+        );
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   TRANSACTIONS PAGE
+========================================================= */
+
+function renderTransactions() {
+
+  const box =
+    $("transactionList");
+
+
+  if (!box) {
+    return;
+  }
+
+
+  const search =
+    (
+      $("transactionSearch")
+        ?.value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const list =
+    transactions.filter(
+      transaction => {
+
+        const text =
+          [
+            transaction.personName,
+            transaction.note,
+            transaction.type,
+            transaction.date
+          ]
+            .join(" ")
+            .toLowerCase();
+
+
+        return (
+          !search ||
+          text.includes(
+            search
+          )
+        );
+
+      }
+    );
+
+
+  if (
+    list.length ===
+    0
+  ) {
+
+    box.innerHTML = `
+
+      <div
+        class="p-10
+               text-center
+               text-slate-500"
+      >
+        No transactions found.
+      </div>
+
+    `;
+
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    list
+      .map(
+        transaction => {
+
+          const given =
+            transaction.type ===
+            "given";
+
+
+          return `
+
+            <div
+              class="p-4"
+            >
+
+              <div
+                class="flex
+                       items-start
+                       gap-3"
+              >
+
+                <div
+                  class="w-10 h-10
+                         rounded-full
+                         ${
+                           given
+                             ? "bg-red-50 text-red-600 dark:bg-red-500/10"
+                             : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
+                         }
+                         flex
+                         items-center
+                         justify-center"
+                >
+                  ${
+                    given
+                      ? "↑"
+                      : "↓"
+                  }
+                </div>
+
+
+                <div
+                  class="flex-1
+                         min-w-0"
+                >
+
+                  <div
+                    class="flex
+                           justify-between
+                           gap-3"
+                  >
+
+                    <div>
+
+                      <p
+                        class="font-semibold"
+                      >
+                        ${escapeHTML(
+                          transaction.personName
+                        )}
+                      </p>
+
+
+                      <p
+                        class="text-xs
+                               text-slate-500
+                               mt-1"
+                      >
+                        ${escapeHTML(
+                          transaction.date ||
+                          ""
+                        )}
+                      </p>
+
+                    </div>
+
+
+                    <p
+                      class="font-bold
+                             whitespace-nowrap
+                             ${
+                               given
+                                 ? "text-red-600"
+                                 : "text-emerald-600"
+                             }"
+                    >
+
+                      ${
+                        given
+                          ? "+"
+                          : "-"
+                      }
+
+                      ${formatINR(
+                        transaction.amount
+                      )}
+
+                    </p>
+
+                  </div>
+
+
+                  ${
+                    transaction.note
+                      ? `
+                        <p
+                          class="text-sm
+                                 text-slate-500
+                                 mt-2"
+                        >
+                          ${escapeHTML(
+                            transaction.note
+                          )}
+                        </p>
+                      `
+                      : ""
+                  }
+
+                <div
+                  class="mt-3 text-[11px] text-slate-500 dark:text-slate-400 space-y-1"
+                >
+                  <div>ID: ${escapeHTML(transaction.transactionCode || transaction.id || "Legacy")}</div>
+                  <div>
+                    Mode: ${escapeHTML(transaction.paymentMode || "Not recorded")}
+                    ${transaction.referenceNumber ? ` | Ref: ${escapeHTML(transaction.referenceNumber)}` : ""}
+                  </div>
+                  ${transaction.dueDate ? `<div>Due: ${escapeHTML(transaction.dueDate)}</div>` : ""}
+                  <div>
+                    Acknowledged: ${transaction.acknowledged ? "Yes" : "No"}
+                    ${transaction.acknowledgementMethod ? ` (${escapeHTML(transaction.acknowledgementMethod)})` : ""}
+                  </div>
+                </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+
+/* =========================================================
+   REPORT SELECT
+========================================================= */
+
+function renderReportSelect() {
+
+  const select =
+    $("reportPerson");
+
+
+  if (!select) {
+    return;
+  }
+
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select person
+      </option>
+    ` +
+    people
+      .map(
+        person =>
+          `
+            <option
+              value="${person.id}"
+            >
+              ${escapeHTML(
+                person.name
+              )}
+            </option>
+          `
+      )
+      .join("");
+
+}
+
+
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+function makeWhatsAppLink(
+  person,
+  balance
+) {
+
+  let phone =
+    String(
+      person.phone ||
+      ""
+    )
+      .replace(
+        /\D/g,
+        ""
+      );
+
+
+  if (
+    phone.length ===
+    10
+  ) {
+
+    phone =
+      "91" +
+      phone;
+
+  }
+
+
+  const message =
+`Hello ${person.name || ""},
+
+This is a reminder regarding your Transaction Paper ledger.
+
+Outstanding balance: ${formatINR(balance)}
+
+Please review the account and settle the outstanding amount.
+
+Thank you.`;
+
+
+  return (
+    "https://wa.me/" +
+    phone +
+    "?text=" +
+    encodeURIComponent(
+      message
+    )
+  );
+
+}
+
+
+
+/* =========================================================
+   PERSON DETAIL
+========================================================= */
+
+function openPersonDetail(
+  personId
+) {
+
+  const person =
+    people.find(
+      item =>
+        item.id ===
+        personId
+    );
+
+
+  if (!person) {
+    return;
+  }
+
+
+  const summary =
+    getSummary(
+      personId
+    );
+
+
+  $("detailAvatar").textContent =
+    String(
+      person.name ||
+      "U"
+    )
+      .charAt(
+        0
+      )
+      .toUpperCase();
+
+
+  $("detailName").textContent =
+    person.name ||
+    "Person";
+
+
+  $("detailPhone").textContent =
+    person.phone ||
+    "No phone number";
+
+
+  $("detailGiven").textContent =
+    formatINR(
+      summary.given
+    );
+
+
+  $("detailReceived").textContent =
+    formatINR(
+      summary.received
+    );
+
+
+  $("detailBalance").textContent =
+    formatINR(
+      summary.balance
+    );
+
+
+  const whatsapp =
+    $("whatsappReminder");
+
+
+  if (
+    person.phone
+  ) {
+
+    whatsapp.href =
+      makeWhatsAppLink(
+        person,
+        summary.balance
+      );
+
+
+    whatsapp.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    whatsapp.classList.add(
+      "hidden"
+    );
+
+  }
+
+
+  renderTimeline(
+    summary.transactions
+  );
+
+
+  openModal(
+    "personDetailModal"
+  );
+
+}
+
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+function renderTimeline(
+  list
+) {
+
+  const box =
+    $("detailTimeline");
+
+
+  if (!box) {
+    return;
+  }
+
+
+  if (
+    list.length ===
+    0
+  ) {
+
+    box.innerHTML = `
+
+      <div
+        class="p-8
+               rounded-xl
+               bg-slate-50
+               dark:bg-slate-800
+               text-center
+               text-slate-500"
+      >
+        No transactions yet.
+      </div>
+
+    `;
+
+
+    return;
+
+  }
+
+
+  const sorted =
+    [...list].sort(
+      (a, b) =>
+        String(
+          b.date ||
+          ""
+        ).localeCompare(
+          String(
+            a.date ||
+            ""
+          )
+        )
+    );
+
+
+  box.innerHTML =
+    sorted
+      .map(
+        transaction => {
+
+          const given =
+            transaction.type ===
+            "given";
+
+
+          return `
+
+            <div
+              class="relative
+                     pl-8"
+            >
+
+              <div
+                class="absolute
+                       left-0
+                       top-1
+                       w-4 h-4
+                       rounded-full
+                       ${
+                         given
+                           ? "bg-red-500"
+                           : "bg-emerald-500"
+                       }"
+              ></div>
+
+
+              <div
+                class="p-4
+                       rounded-xl
+                       bg-slate-50
+                       dark:bg-slate-800"
+              >
+
+                <div
+                  class="flex
+                         justify-between
+                         gap-3"
+                >
+
+                  <div>
+
+                    <p
+                      class="font-semibold"
+                    >
+                      ${
+                        given
+                          ? "Money Given"
+                          : "Money Received"
+                      }
+                    </p>
+
+
+                    <p
+                      class="text-xs
+                             text-slate-500
+                             mt-1"
+                    >
+                      ${escapeHTML(
+                        transaction.date ||
+                        ""
+                      )}
+                    </p>
+
+                  </div>
+
+
+                  <p
+                    class="font-bold
+                           ${
+                             given
+                               ? "text-red-600"
+                               : "text-emerald-600"
+                           }"
+                  >
+                    ${formatINR(
+                      transaction.amount
+                    )}
+                  </p>
+
+                </div>
+
+
+                ${
+                  transaction.note
+                    ? `
+                      <p
+                        class="text-sm
+                               text-slate-500
+                               mt-3"
+                      >
+                        ${escapeHTML(
+                          transaction.note
+                        )}
+                      </p>
+                    `
+                    : ""
+                }
+
+                <div
+                  class="mt-3 text-[11px] text-slate-500 dark:text-slate-400 space-y-1"
+                >
+                  <div>ID: ${escapeHTML(transaction.transactionCode || transaction.id || "Legacy")}</div>
+                  <div>Mode: ${escapeHTML(transaction.paymentMode || "Not recorded")}</div>
+                  ${transaction.referenceNumber ? `<div>Reference: ${escapeHTML(transaction.referenceNumber)}</div>` : ""}
+                  ${transaction.dueDate ? `<div>Due date: ${escapeHTML(transaction.dueDate)}</div>` : ""}
+                  <div>
+                    Acknowledged: ${transaction.acknowledged ? "Yes" : "No"}
+                    ${transaction.acknowledgementMethod ? ` (${escapeHTML(transaction.acknowledgementMethod)})` : ""}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+
+/* =========================================================
+   ADD PERSON
+========================================================= */
+
+$("personForm")
+  ?.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+
+      if (!currentUser) {
+
+        showToast(
+          "Please sign in first."
+        );
+
+        return;
+
+      }
+
+
+      const name =
+        $("personName")
+          .value
+          .trim();
+
+
+      const phone =
+        $("personPhone")
+          .value
+          .trim();
+
+
+      const note =
+        $("personNote")
+          .value
+          .trim();
+
+
+      if (!name) {
+
+        showToast(
+          "Please enter the person's name."
+        );
+
+        return;
+
+      }
+
+
+      const saveButton =
+        $("savePersonBtn");
+
+
+      if (
+        saveButton
+      ) {
+
+        saveButton.disabled =
+          true;
+
+        saveButton.textContent =
+          "Saving...";
+
+      }
+
+
+      try {
+
+        await addDoc(
+          peopleCollection(),
+          {
+
+            ownerUid:
+              currentUser.uid,
+
+            name,
+
+            phone,
+
+            note,
+
+            createdAt:
+              serverTimestamp()
+
+          }
+        );
+
+
+        event.target.reset();
+
+
+        closeModal(
+          "personModal"
+        );
+
+
+        showToast(
+          "Person saved successfully."
+        );
+
+
+        await loadPeople();
+
+
+        renderEverything();
+
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "Add person error:",
+          error
+        );
+
+
+        showToast(
+          "Could not save person."
+        );
+
+      } finally {
+
+        if (
+          saveButton
+        ) {
+
+          saveButton.disabled =
+            false;
+
+          saveButton.textContent =
+            "Save Person";
+
+        }
+
+      }
+
+    }
+  );
+
+
+
+/* =========================================================
+   ADD TRANSACTION
+========================================================= */
+
+$("transactionForm")
+  ?.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+      if (!currentUser) {
+        showToast("Please sign in first.");
+        return;
+      }
+
+      const type =
+        document
+          .querySelector('input[name="transactionType"]:checked')
+          ?.value ||
+        "given";
+
+      const personId = $("transactionPerson").value;
+      const amount = Number($("transactionAmount").value);
+      const date = $("transactionDate").value;
+      const mode = $("transactionMode")?.value || "";
+      const referenceNumber = $("transactionReference")?.value.trim() || "";
+      const dueDate = $("transactionDueDate")?.value || "";
+      const note = $("transactionNote").value.trim();
+      const acknowledged = Boolean($("transactionAcknowledged")?.checked);
+      const acknowledgementMethod = $("transactionAcknowledgementMethod")?.value || "";
+
+      if (!personId) {
+        showToast("Please select a person.");
+        return;
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showToast("Please enter a valid amount.");
+        return;
+      }
+
+      if (!date) {
+        showToast("Please select a date.");
+        return;
+      }
+
+      if (!mode) {
+        showToast("Please select the payment mode.");
+        return;
+      }
+
+      const digitalMode =
+        mode === "UPI" ||
+        mode === "Bank Transfer" ||
+        mode === "Cheque";
+
+      if (digitalMode && !referenceNumber) {
+        showToast("Please enter the UPI Transaction ID / UTR / Cheque No.");
+        $("transactionReference")?.focus();
+        return;
+      }
+
+      if (acknowledged && !acknowledgementMethod) {
+        showToast("Please select the acknowledgement method.");
+        return;
+      }
+
+      const person = people.find(item => item.id === personId);
+      const transactionCode = makeTransactionCode();
+      const saveButton = $("saveTransactionBtn");
+
+      if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+      }
+
+      try {
+
+        await addDoc(
+          transactionsCollection(),
+          {
+            ownerUid: currentUser.uid,
+            transactionCode,
+            personId,
+            personName: person?.name || "Unknown",
+            type,
+            amount,
+            date,
+            paymentMode: mode,
+            referenceNumber,
+            dueDate,
+            note,
+            acknowledged,
+            acknowledgementMethod,
+            createdAt: serverTimestamp()
+          }
+        );
+
+        event.target.reset();
+        $("transactionDate").value = todayISO();
+        closeModal("transactionModal");
+
+        showToast(`Transaction saved: ${transactionCode}`);
+
+        await loadTransactions();
+        renderEverything();
+
+      } catch (error) {
+
+        console.error("Add transaction error:", error);
+        showToast("Could not save transaction.");
+
+      } finally {
+
+        if (saveButton) {
+          saveButton.disabled = false;
+          saveButton.textContent = "Save Transaction";
+        }
+
+      }
+
+    }
+  );
+
+
+
+
+/* =========================================================
+   DAILY SPENDING FORM
+========================================================= */
+
+$("addSpendingBtn")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      if (
+        $("spendingDate")
+      ) {
+        $("spendingDate").value =
+          todayISO();
+      }
+
+      openModal(
+        "spendingModal"
+      );
+
+    }
+  );
+
+
+$("closeSpendingModal")
+  ?.addEventListener(
+    "click",
+    () =>
+      closeModal(
+        "spendingModal"
+      )
+  );
+
+
+$("spendingSearch")
+  ?.addEventListener(
+    "input",
+    renderDailySpending
+  );
+
+
+$("spendingCategoryFilter")
+  ?.addEventListener(
+    "change",
+    renderDailySpending
+  );
+
+
+$("spendingDateFilter")
+  ?.addEventListener(
+    "change",
+    renderDailySpending
+  );
+
+
+$("downloadSpendingPdfBtn")
+  ?.addEventListener(
+    "click",
+    generateSpendingPDF
+  );
+
+
+$("spendingForm")
+  ?.addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+      if (
+        !currentUser
+      ) {
+
+        showToast(
+          "Please sign in first."
+        );
+
+        return;
+
+      }
+
+      const date =
+        $("spendingDate")
+          .value;
+
+      const category =
+        $("spendingCategory")
+          .value;
+
+      const description =
+        $("spendingDescription")
+          .value
+          .trim();
+
+      const amount =
+        Number(
+          $("spendingAmount")
+            .value
+        );
+
+      const paymentMethod =
+        $("spendingPaymentMethod")
+          .value;
+
+      const note =
+        $("spendingNote")
+          .value
+          .trim();
+
+      if (!date) {
+
+        showToast(
+          "Please select the date."
+        );
+
+        return;
+
+      }
+
+      if (!category) {
+
+        showToast(
+          "Please select a category."
+        );
+
+        return;
+
+      }
+
+      if (
+        !description
+      ) {
+
+        showToast(
+          "Please enter the item or description."
+        );
+
+        return;
+
+      }
+
+      if (
+        !Number.isFinite(
+          amount
+        ) ||
+        amount <=
+        0
+      ) {
+
+        showToast(
+          "Please enter a valid amount."
+        );
+
+        return;
+
+      }
+
+      if (
+        !paymentMethod
+      ) {
+
+        showToast(
+          "Please select the payment method."
+        );
+
+        return;
+
+      }
+
+      const spendingCode =
+        makeSpendingCode();
+
+      const saveButton =
+        $("saveSpendingBtn");
+
+      if (
+        saveButton
+      ) {
+
+        saveButton.disabled =
+          true;
+
+        saveButton.textContent =
+          "Saving...";
+
+      }
+
+      try {
+
+        await addDoc(
+          spendingCollection(),
+          {
+
+            ownerUid:
+              currentUser.uid,
+
+            spendingCode,
+
+            date,
+
+            category,
+
+            description,
+
+            amount,
+
+            paymentMethod,
+
+            note,
+
+            createdAt:
+              serverTimestamp()
+
+          }
+        );
+
+        event.target.reset();
+
+        $("spendingDate").value =
+          todayISO();
+
+        closeModal(
+          "spendingModal"
+        );
+
+        showToast(
+          `Spending saved: ${spendingCode}`
+        );
+
+        await loadSpendings();
+
+        renderEverything();
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "Add spending error:",
+          error
+        );
+
+        showToast(
+          "Could not save spending."
+        );
+
+      } finally {
+
+        if (
+          saveButton
+        ) {
+
+          saveButton.disabled =
+            false;
+
+          saveButton.textContent =
+            "Save Spending";
+
+        }
+
+      }
+
+    }
+  );
+
+
+
+/* =========================================================
+   DAILY SPENDING CODE
+========================================================= */
+
+function makeSpendingCode() {
+
+  const d =
+    new Date();
+
+  const pad =
+    value =>
+      String(
+        value
+      ).padStart(
+        2,
+        "0"
+      );
+
+  const random =
+    Math.random()
+      .toString(
+        36
+      )
+      .slice(
+        2,
+        6
+      )
+      .toUpperCase();
+
+  return (
+    "TP-SPD-" +
+    d.getFullYear() +
+    pad(
+      d.getMonth() + 1
+    ) +
+    pad(
+      d.getDate()
+    ) +
+    "-" +
+    pad(
+      d.getHours()
+    ) +
+    pad(
+      d.getMinutes()
+    ) +
+    pad(
+      d.getSeconds()
+    ) +
+    "-" +
+    random
+  );
+
+}
+
+
+
+/* =========================================================
+   PROFESSIONAL PDF
+========================================================= */
+
+function generatePDF(
+  personId = null
+) {
+
+  try {
+
+    if (
+      !window.jspdf ||
+      !window.jspdf.jsPDF
+    ) {
+
+      throw new Error(
+        "jsPDF library unavailable."
+      );
+
+    }
+
+
+    showToast(
+      "Preparing professional statement..."
+    );
+
+
+    const {
+      jsPDF
+    } =
+      window.jspdf;
+
+
+    const pdf =
+      new jsPDF(
+        {
+          orientation:
+            "portrait",
+
+          unit:
+            "mm",
+
+          format:
+            "a4"
+        }
+      );
+
+
+    const person =
+      personId
+        ? people.find(
+            p =>
+              p.id ===
+              personId
+          )
+        : null;
+
+
+    const list =
+      personId
+        ? transactions.filter(
+            t =>
+              t.personId ===
+              personId
+          )
+        : [...transactions];
+
+
+    list.sort(
+      (a, b) =>
+        String(
+          a.date ||
+          ""
+        ).localeCompare(
+          String(
+            b.date ||
+            ""
+          )
+        ) ||
+        Number(
+          a.createdAt?.seconds ||
+          0
+        ) -
+        Number(
+          b.createdAt?.seconds ||
+          0
+        )
+    );
+
+
+    let totalGiven =
+      0;
+
+
+    let totalReceived =
+      0;
+
+
+    list.forEach(
+      transaction => {
+
+        const amount =
+          Number(
+            transaction.amount ||
+            0
+          );
+
+
+        if (
+          transaction.type ===
+          "given"
+        ) {
+
+          totalGiven +=
+            amount;
+
+        }
+
+
+        if (
+          transaction.type ===
+          "received"
+        ) {
+
+          totalReceived +=
+            amount;
+
+        }
+
+      }
+    );
+
+
+    const closingBalance =
+      totalGiven -
+      totalReceived;
+
+
+    const statementStatus =
+      closingBalance >
+      0
+        ? "AMOUNT DUE"
+        : closingBalance <
+          0
+          ? "CREDIT BALANCE"
+          : "SETTLED";
+
+
+    const generatedDate =
+      new Date();
+
+
+    const dd =
+      String(
+        generatedDate.getDate()
+      )
+        .padStart(
+          2,
+          "0"
+        );
+
+
+    const mm =
+      String(
+        generatedDate.getMonth() +
+        1
+      )
+        .padStart(
+          2,
+          "0"
+        );
+
+
+    const yyyy =
+      generatedDate.getFullYear();
+
+
+    const formattedGeneratedDate =
+      `${dd}-${mm}-${yyyy}`;
+
+
+    const statementNumber =
+      `TP-${yyyy}${mm}${dd}-${String(
+        generatedDate.getHours()
+      ).padStart(2, "0")}${String(
+        generatedDate.getMinutes()
+      ).padStart(2, "0")}`;
+
+
+    const pageWidth =
+      210;
+
+
+    const pageHeight =
+      297;
+
+
+    const left =
+      15;
+
+
+    const right =
+      195;
+
+
+    let y =
+      0;
+
+
+    /* =======================================================
+       HEADER
+    ======================================================== */
+
+    pdf.setFillColor(
+      24,
+      55,
+      110
+    );
+
+
+    pdf.rect(
+      0,
+      0,
+      pageWidth,
+      35,
+      "F"
+    );
+
+
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      19
+    );
+
+
+    pdf.text(
+      "TRANSACTION PAPER",
+      left,
+      17
+    );
+
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+
+    pdf.setFontSize(
+      8
+    );
+
+
+    pdf.text(
+      "PERSONAL FINANCIAL LEDGER",
+      left,
+      24
+    );
+
+
+    pdf.setFontSize(
+      7.5
+    );
+
+
+    pdf.text(
+      "STATEMENT OF ACCOUNT",
+      right,
+      15,
+      {
+        align:
+          "right"
+      }
+    );
+
+
+    pdf.text(
+      `Statement No: ${statementNumber}`,
+      right,
+      22,
+      {
+        align:
+          "right"
+      }
+    );
+
+
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    y =
+      46;
+
+
+    /* =======================================================
+       ACCOUNT INFORMATION
+    ======================================================== */
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      11
+    );
+
+
+    pdf.text(
+      person
+        ? "ACCOUNT DETAILS"
+        : "STATEMENT DETAILS",
+      left,
+      y
+    );
+
+
+    y +=
+      7;
+
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+
+    pdf.setFontSize(
+      8.5
+    );
+
+
+    if (
+      person
+    ) {
+
+      pdf.text(
+        "Account Holder:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        String(
+          person.name ||
+          ""
+        ).slice(
+          0,
+          30
+        ),
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Mobile:",
+        left,
+        y
+      );
+
+
+      pdf.text(
+        String(
+          person.phone ||
+          "Not provided"
+        ),
+        48,
+        y
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Status:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        statementStatus,
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+    } else {
+
+      pdf.text(
+        "Account:",
+        left,
+        y
+      );
+
+
+      pdf.text(
+        "All Accounts",
+        48,
+        y
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Status:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        statementStatus,
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+    }
+
+
+    /* Right information */
+
+    pdf.text(
+      "Statement Date:",
+      112,
+      53
+    );
+
+
+    pdf.text(
+      formattedGeneratedDate,
+      150,
+      53
+    );
+
+
+    pdf.text(
+      "Currency:",
+      112,
+      60
+    );
+
+
+    pdf.text(
+      "Indian Rupee (INR)",
+      150,
+      60
+    );
+
+
+    pdf.text(
+      "Record Type:",
+      112,
+      67
+    );
+
+
+    pdf.text(
+      "Electronically maintained ledger",
+      150,
+      67
+    );
+
+
+    /* =======================================================
+       SUMMARY
+    ======================================================== */
+
+    y =
+      Math.max(
+        y + 14,
+        83
+      );
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      10.5
+    );
+
+
+    pdf.text(
+      "ACCOUNT SUMMARY",
+      left,
+      y
+    );
+
+
+    y +=
+      5;
+
+
+    const cardY =
+      y;
+
+
+    const cardWidth =
+      56;
+
+
+    const cardHeight =
+      25;
+
+
+    const cards = [
+
+      {
+        x:
+          15,
+
+        label:
+          "TOTAL GIVEN",
+
+        value:
+          pdfINR(
+            totalGiven
+          )
+      },
+
+
+      {
+        x:
+          77,
+
+        label:
+          "TOTAL RECEIVED",
+
+        value:
+          pdfINR(
+            totalReceived
+          )
+      },
+
+
+      {
+        x:
+          139,
+
+        label:
+          "OUTSTANDING",
+
+        value:
+          pdfINR(
+            closingBalance
+          )
+      }
+
+    ];
+
+
+    cards.forEach(
+      card => {
+
+        pdf.setFillColor(
+          248,
+          250,
+          252
+        );
+
+
+        pdf.setDrawColor(
+          215,
+          220,
+          228
+        );
+
+
+        pdf.roundedRect(
+          card.x,
+          cardY,
+          cardWidth,
+          cardHeight,
+          2.5,
+          2.5,
+          "FD"
+        );
+
+
+        pdf.setFont(
+          "helvetica",
+          "normal"
+        );
+
+
+        pdf.setTextColor(
+          90,
+          96,
+          106
+        );
+
+
+        pdf.setFontSize(
+          6.8
+        );
+
+
+        pdf.text(
+          card.label,
+          card.x + 4,
+          cardY + 7
+        );
+
+
+        pdf.setFont(
+          "helvetica",
+          "bold"
+        );
+
+
+        pdf.setTextColor(
+          20,
+          30,
+          45
+        );
+
+
+        pdf.setFontSize(
+          9.2
+        );
+
+
+        pdf.text(
+          card.value,
+          card.x + 4,
+          cardY + 17
+        );
+
+      }
+    );
+
+
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    y =
+      cardY +
+      cardHeight +
+      14;
+
+
+    /* =======================================================
+       TABLE HEADER
+    ======================================================== */
+
+    function drawTableHeader(
+      startY
+    ) {
+
+      pdf.setFillColor(24, 55, 110);
+      pdf.rect(left, startY, 180, 10, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(6.5);
+
+      pdf.text("DATE", 18, startY + 6.5);
+      pdf.text("TXN ID", 38, startY + 6.5);
+      pdf.text("DESCRIPTION / DETAILS", 63, startY + 6.5);
+      pdf.text("SEND", 118, startY + 6.5);
+      pdf.text("RECEIVE", 144, startY + 6.5);
+      pdf.text("BALANCE", 173, startY + 6.5);
+
+      pdf.setTextColor(0, 0, 0);
+      return startY + 10;
+
+    }
+
+    y =
+      drawTableHeader(
+        y
+      );
+
+
+    /* =======================================================
+       RUNNING BALANCE
+    ======================================================== */
+
+    let runningBalance =
+      0;
+
+
+    for (
+      let index = 0;
+      index < list.length;
+      index++
+    ) {
+
+      const transaction = list[index];
+      const amount = Number(transaction.amount || 0);
+      const isGiven = transaction.type === "given";
+
+      if (isGiven) {
+        runningBalance += amount;
+      } else {
+        runningBalance -= amount;
+      }
+
+      if (y > 264) {
+        pdf.addPage();
+        y = 20;
+        y = drawTableHeader(y);
+      }
+
+      const rowHeight = 15;
+
+      if (index % 2 === 0) {
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(left, y, 180, rowHeight, "F");
+      }
+
+      pdf.setDrawColor(225, 228, 235);
+      pdf.line(left, y + rowHeight, right, y + rowHeight);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(6.4);
+
+      const date = String(transaction.date || "");
+      const transactionId = String(
+        transaction.transactionCode ||
+        transaction.id ||
+        "Legacy"
+      ).slice(0, 18);
+
+      let description =
+        transaction.note ||
+        (isGiven ? "Money Given" : "Money Received");
+
+      description = String(description)
+        .replace(/[\r\n]+/g, " ")
+        .slice(0, 25);
+
+      const mode = String(
+        transaction.paymentMode || "Not recorded"
+      ).slice(0, 18);
+
+      const ref = String(
+        transaction.referenceNumber || ""
+      ).slice(0, 15);
+
+      const due = transaction.dueDate
+        ? `Due ${String(transaction.dueDate)}`
+        : "";
+
+      const ack = transaction.acknowledged
+        ? `Ack: ${String(transaction.acknowledgementMethod || "Yes")}`
+        : "Ack: No";
+
+      pdf.text(date, 18, y + 6);
+      pdf.text(transactionId, 38, y + 6);
+      pdf.text(description, 63, y + 5);
+
+      pdf.setFontSize(5.4);
+      pdf.text(
+        `Mode: ${mode}${ref ? ` | Ref: ${ref}` : ""}`,
+        63,
+        y + 9
+      );
+      pdf.text(
+        `${due}${due && ack ? " | " : ""}${ack}`,
+        63,
+        y + 12.2
+      );
+
+      pdf.setFontSize(6.4);
+      pdf.text(isGiven ? pdfINR(amount) : "-", 118, y + 6);
+      pdf.text(!isGiven ? pdfINR(amount) : "-", 144, y + 6);
+
+      pdf.setFont("helvetica", "bold");
+      pdf.text(pdfINR(runningBalance), 173, y + 6);
+
+      y += rowHeight;
+
+    }
+
+
+    if (
+      list.length ===
+      0
+    ) {
+
+      pdf.setFillColor(
+        250,
+        250,
+        250
+      );
+
+
+      pdf.rect(
+        left,
+        y,
+        180,
+        20,
+        "F"
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setTextColor(
+        105,
+        110,
+        120
+      );
+
+
+      pdf.setFontSize(
+        8
+      );
+
+
+      pdf.text(
+        "No transactions recorded.",
+        105,
+        y + 12,
+        {
+          align:
+            "center"
+        }
+      );
+
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+
+      y +=
+        20;
+
+    }
+
+
+    /* =======================================================
+       CLOSING BALANCE
+    ======================================================== */
+
+    if (
+      y >
+      243
+    ) {
+
+      pdf.addPage();
+
+
+      y =
+        25;
+
+    } else {
+
+      y +=
+        8;
+
+    }
+
+
+    pdf.setFillColor(
+      24,
+      55,
+      110
+    );
+
+
+    pdf.roundedRect(
+      115,
+      y,
+      80,
+      28,
+      3,
+      3,
+      "F"
+    );
+
+
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      7.5
+    );
+
+
+    pdf.text(
+      "CLOSING BALANCE",
+      120,
+      y + 8
+    );
+
+
+    pdf.setFontSize(
+      11.5
+    );
+
+
+    pdf.text(
+      pdfINR(
+        closingBalance
+      ),
+      120,
+      y + 18
+    );
+
+
+    pdf.setFontSize(
+      7
+    );
+
+
+    pdf.text(
+      statementStatus,
+      190,
+      y + 23,
+      {
+        align:
+          "right"
+      }
+    );
+
+
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    /* =======================================================
+       NOTES
+    ======================================================== */
+
+    y +=
+      37;
+
+
+    if (
+      y >
+      255
+    ) {
+
+      pdf.addPage();
+
+
+      y =
+        25;
+
+    }
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      8.5
+    );
+
+
+    pdf.text(
+      "STATEMENT NOTES",
+      left,
+      y
+    );
+
+
+    y +=
+      6;
+
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+
+    pdf.setFontSize(
+      7.3
+    );
+
+
+    const notes = [
+
+      "This statement is generated electronically by Transaction Paper.",
+
+      "Running balance = Total Given minus Total Received.",
+
+      "Transaction IDs, payment modes, references and acknowledgement records are shown when recorded.",
+
+      "Keep original UPI, bank, cash acknowledgement, WhatsApp or signed documents separately.",
+
+      "Please verify transaction details before financial reconciliation."
+
+    ];
+
+
+    notes.forEach(
+      note => {
+
+        if (
+          y >
+          270
+        ) {
+
+          pdf.addPage();
+
+
+          y =
+            25;
+
+        }
+
+
+        pdf.text(
+          "• " +
+          note,
+          left,
+          y
+        );
+
+
+        y +=
+          5;
+
+      }
+    );
+
+
+    /* =======================================================
+       FOOTERS FOR ALL PAGES
+    ======================================================== */
+
+    const totalPages =
+      pdf
+        .internal
+        .getNumberOfPages();
+
+
+    for (
+      let page =
+        1;
+
+      page <=
+        totalPages;
+
+      page++
+    ) {
+
+      pdf.setPage(
+        page
+      );
+
+
+      pdf.setDrawColor(
+        210,
+        214,
+        222
+      );
+
+
+      pdf.line(
+        15,
+        pageHeight - 17,
+        195,
+        pageHeight - 17
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setFontSize(
+        6.8
+      );
+
+
+      pdf.setTextColor(
+        105,
+        110,
+        120
+      );
+
+
+      pdf.text(
+        "Generated electronically by Transaction Paper",
+        15,
+        pageHeight - 10
+      );
+
+
+      pdf.text(
+        "Created by Upen Gowala",
+        15,
+        pageHeight - 6
+      );
+
+
+      pdf.text(
+        `Page ${page} of ${totalPages}`,
+        195,
+        pageHeight - 8,
+        {
+          align:
+            "right"
+        }
+      );
+
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+    }
+
+
+    /* =======================================================
+       SAVE
+    ======================================================== */
+
+    const cleanName =
+      String(
+        person?.name ||
+        "full-ledger"
+      )
+        .replace(
+          /[^a-z0-9]+/gi,
+          "-"
+        )
+        .replace(
+          /^-+|-+$/g,
+          ""
+        )
+        .toLowerCase() ||
+      "statement";
+
+
+    const filename =
+      `transaction-paper-${cleanName}-statement.pdf`;
+
+
+    pdf.save(
+      filename
+    );
+
+
+    showToast(
+      "Professional PDF downloaded successfully."
+    );
+
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      "PDF generation error:",
+      error
+    );
+
+
+    showToast(
+      "PDF could not be generated."
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   PDF BUTTONS
+========================================================= */
+
+$("fullPdfBtn")
+  ?.addEventListener(
+    "click",
+    () =>
+      generatePDF()
+  );
+
+
+$("personPdfBtn")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      const personId =
+        $("reportPerson")
+          .value;
+
+
+      if (!personId) {
+
+        showToast(
+          "Please select a person."
+        );
+
+        return;
+
+      }
+
+
+      generatePDF(
+        personId
+      );
+
+    }
+  );
+
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("dashboardSearch")
+  ?.addEventListener(
+    "input",
+    renderDashboardPeople
+  );
+
+
+$("peopleSearch")
+  ?.addEventListener(
+    "input",
+    renderPeople
+  );
+
+
+$("peopleStatus")
+  ?.addEventListener(
+    "change",
+    renderPeople
+  );
+
+
+$("peopleSort")
+  ?.addEventListener(
+    "change",
+    renderPeople
+  );
+
+
+$("transactionSearch")
+  ?.addEventListener(
+    "input",
+    renderTransactions
+  );
+
+
+
+/* =========================================================
+   OPEN BUTTONS
+========================================================= */
+
+$("desktopAddTransaction")
+  ?.addEventListener(
+    "click",
+    () =>
+      openModal(
+        "transactionModal"
+      )
+  );
+
+
+$("mobileAddTransaction")
+  ?.addEventListener(
+    "click",
+    () =>
+      openModal(
+        "transactionModal"
+      )
+  );
+
+
+$("addPersonPageBtn")
+  ?.addEventListener(
+    "click",
+    () =>
+      openModal(
+        "personModal"
+      )
+  );
+
+
+document
+  .querySelectorAll(
+    ".quick-action"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const action =
+            button.dataset.quick;
+
+
+          if (
+            action ===
+            "person"
+          ) {
+
+            openModal(
+              "personModal"
+            );
+
+          }
+
+
+          if (
+            action ===
+            "given"
+          ) {
+
+            openModal(
+              "transactionModal"
+            );
+
+
+            const radio =
+              document.querySelector(
+                'input[name="transactionType"][value="given"]'
+              );
+
+
+            if (radio) {
+
+              radio.checked =
+                true;
+
+            }
+
+          }
+
+
+          if (
+            action ===
+            "received"
+          ) {
+
+            openModal(
+              "transactionModal"
+            );
+
+
+            const radio =
+              document.querySelector(
+                'input[name="transactionType"][value="received"]'
+              );
+
+
+            if (radio) {
+
+              radio.checked =
+                true;
+
+            }
+
+          }
+
+
+          if (
+            action ===
+            "report"
+          ) {
+
+            showPage(
+              "reports"
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+
+/* =========================================================
+   CLOSE MODALS
+========================================================= */
+
+$("closePersonModal")
+  ?.addEventListener(
+    "click",
+    () =>
+      closeModal(
+        "personModal"
+      )
+  );
+
+
+$("closeTransactionModal")
+  ?.addEventListener(
+    "click",
+    () =>
+      closeModal(
+        "transactionModal"
+      )
+  );
+
+
+$("closeDetailModal")
+  ?.addEventListener(
+    "click",
+    () =>
+      closeModal(
+        "personDetailModal"
+      )
+  );
+
+
+[
+  "personModal",
+  "transactionModal",
+  "personDetailModal"
+]
+  .forEach(
+    id => {
+
+      $(id)
+        ?.addEventListener(
+          "click",
+          event => {
+
+            if (
+              event.target ===
+              $(id)
+            ) {
+
+              closeModal(
+                id
+              );
+
+            }
+
+          }
+        );
+
+    }
+  );
+
+
+document
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key !==
+        "Escape"
+      ) {
+
+        return;
+
+      }
+
+
+      closeModal(
+        "personModal"
+      );
+
+
+      closeModal(
+        "transactionModal"
+      );
+
+
+      closeModal(
+        "personDetailModal"
+      );
+
+
+      closeSidebar();
+
+    }
+  );
+
+
+
+/* =========================================================
+   PWA INSTALL
+========================================================= */
+
+window.addEventListener(
+  "beforeinstallprompt",
+  event => {
+
+    event.preventDefault();
+
+
+    deferredInstallPrompt =
+      event;
+
+
+    $("installAppBtn")
+      ?.classList.remove(
+        "hidden"
+      );
+
+  }
+);
+
+
+$("installAppBtn")
+  ?.addEventListener(
+    "click",
+    async () => {
+
+      if (
+        !deferredInstallPrompt
+      ) {
+
+        showToast(
+          "Install option is not available yet."
+        );
+
+        return;
+
+      }
+
+
+      deferredInstallPrompt.prompt();
+
+
+      try {
+
+        await deferredInstallPrompt.userChoice;
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          error
+        );
+
+      }
+
+
+      deferredInstallPrompt =
+        null;
+
+
+      $("installAppBtn")
+        ?.classList.add(
+          "hidden"
+        );
+
+    }
+  );
+
+
+
+/* =========================================================
+   SERVICE WORKER
+========================================================= */
+
+if (
+  "serviceWorker" in navigator
+) {
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      navigator.serviceWorker
+        .register(
+          "./sw.js"
+        )
+        .catch(
+          error =>
+            console.warn(
+              "Service worker:",
+              error
+            )
+        );
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   RENDER EVERYTHING
+========================================================= */
+
+function renderEverything() {
+
+  renderDashboard();
+
+  renderPeople();
+
+  renderTransactions();
+
+  renderDailySpending();
+
+  renderReportSelect();
+
+}
+
+
+/* =========================================================
+   INITIAL RENDER
+========================================================= */
+
+renderEverything();
+
+
+console.log(
+  "Transaction Paper — Evidence Ready + Daily Spending version initialized."
+);
+
+
+</script>
+
+</body>
+</html>
