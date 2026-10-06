@@ -8,16 +8,39 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <meta name="theme-color" content="#2563eb">
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
 
   <meta
     name="description"
     content="Transaction Paper — secure personal financial ledger for money given, received and outstanding balances."
   >
 
-  <title>Transaction Paper — Personal Financial Ledger</title>
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
 
-  <link rel="manifest" href="./manifest.json">
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <title>
+    Transaction Paper — Personal Financial Ledger
+  </title>
+
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,10 +54,12 @@
             primary: {
               50: "#eff6ff",
               100: "#dbeafe",
+              200: "#bfdbfe",
               500: "#3b82f6",
               600: "#2563eb",
               700: "#1d4ed8",
-              800: "#1e40af"
+              800: "#1e40af",
+              900: "#1e3a8a"
             }
           }
         }
@@ -42,9 +67,17 @@
     };
   </script>
 
-  <!-- Google Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Font -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -52,9 +85,12 @@
   >
 
   <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+  ></script>
 
   <style>
+
     * {
       font-family: "Inter", sans-serif;
     }
@@ -67,6 +103,13 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
     .glass {
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
@@ -77,16 +120,114 @@
     }
 
     .modal-backdrop {
-      background: rgba(0, 0, 0, 0.58);
+      background: rgba(2, 6, 23, 0.62);
       backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
     }
 
-    .soft-shadow {
-      box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+    .card-shadow {
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
     }
 
-    .dark .soft-shadow {
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+    .dark .card-shadow {
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      transition: 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: #f1f5f9;
+    }
+
+    .dark .nav-item {
+      color: #cbd5e1;
+    }
+
+    .dark .nav-item:hover {
+      background: #1e293b;
+    }
+
+    .nav-item.active {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .dark .nav-item.active {
+      background: rgba(59, 130, 246, 0.12);
+      color: #60a5fa;
+    }
+
+    .quick-action {
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .quick-action:hover {
+      transform: translateY(-2px);
+      background: #f8fafc;
+    }
+
+    .dark .quick-action {
+      border-color: #334155;
+      background: #0f172a;
+    }
+
+    .dark .quick-action:hover {
+      background: #1e293b;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status-due {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .status-settled {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .dark .status-due {
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .dark .status-settled {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .hidden-page {
+      display: none !important;
     }
 
     ::-webkit-scrollbar {
@@ -100,21 +241,20 @@
 
     ::-webkit-scrollbar-thumb {
       background: #94a3b8;
-      border-radius: 10px;
+      border-radius: 99px;
     }
 
     .dark ::-webkit-scrollbar-thumb {
       background: #475569;
     }
 
-    .safe-bottom {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
   </style>
 </head>
 
 
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+<body
+  class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100"
+>
 
 
 <!-- =========================================================
@@ -122,6 +262,7 @@
 ========================================================= -->
 
 <header
+  id="mobileHeader"
   class="lg:hidden sticky top-0 z-40
          bg-white/90 dark:bg-slate-900/90
          glass
@@ -129,13 +270,20 @@
          dark:border-slate-800"
 >
 
-  <div class="flex items-center justify-between px-4 py-3">
+  <div
+    class="px-4 py-3
+           flex items-center
+           justify-between"
+  >
 
     <button
       id="mobileMenuBtn"
       class="w-10 h-10 rounded-xl
-             bg-slate-100 dark:bg-slate-800
-             flex items-center justify-center"
+             bg-slate-100
+             dark:bg-slate-800
+             flex items-center
+             justify-center"
+      aria-label="Open menu"
     >
       ☰
     </button>
@@ -145,21 +293,25 @@
 
       <div
         class="w-9 h-9 rounded-xl
-               bg-primary-600 text-white
-               flex items-center justify-center
+               bg-primary-600
+               text-white
+               flex items-center
+               justify-center
                font-extrabold"
       >
         TP
       </div>
 
       <div>
-        <div class="font-bold text-base">
+
+        <div class="font-bold">
           Transaction Paper
         </div>
 
         <div class="text-[10px] text-slate-500">
           Personal Financial Ledger
         </div>
+
       </div>
 
     </div>
@@ -168,8 +320,11 @@
     <button
       id="mobileThemeBtn"
       class="w-10 h-10 rounded-xl
-             bg-slate-100 dark:bg-slate-800
-             flex items-center justify-center"
+             bg-slate-100
+             dark:bg-slate-800
+             flex items-center
+             justify-center"
+      aria-label="Toggle theme"
     >
       ☾
     </button>
@@ -179,20 +334,25 @@
 </header>
 
 
+
 <!-- =========================================================
      SIDEBAR
 ========================================================= -->
 
 <aside
   id="sidebar"
-  class="fixed z-50 lg:z-30
+  class="fixed
+         z-50 lg:z-30
          left-0 top-0 bottom-0
          w-72
-         bg-white dark:bg-slate-900
-         border-r border-slate-200
+         bg-white
+         dark:bg-slate-900
+         border-r
+         border-slate-200
          dark:border-slate-800
          sidebar-transition
-         -translate-x-full lg:translate-x-0"
+         -translate-x-full
+         lg:translate-x-0"
 >
 
   <div class="h-full flex flex-col">
@@ -201,28 +361,43 @@
     <!-- Brand -->
 
     <div
-      class="h-20 px-6
-             flex items-center gap-3
-             border-b border-slate-200
+      class="h-20
+             px-6
+             flex items-center
+             gap-3
+             border-b
+             border-slate-200
              dark:border-slate-800"
     >
 
       <div
-        class="w-11 h-11 rounded-2xl
-               bg-primary-600 text-white
-               flex items-center justify-center
-               font-extrabold text-lg"
+        class="w-11 h-11
+               rounded-2xl
+               bg-primary-600
+               text-white
+               flex items-center
+               justify-center
+               font-extrabold
+               text-lg"
       >
         TP
       </div>
 
+
       <div>
 
-        <div class="font-extrabold text-lg">
+        <div
+          class="font-extrabold
+                 text-lg"
+        >
           Transaction Paper
         </div>
 
-        <div class="text-xs text-slate-500">
+        <div
+          class="text-xs
+                 text-slate-500
+                 dark:text-slate-400"
+        >
           Personal Financial Ledger
         </div>
 
@@ -235,51 +410,49 @@
 
     <nav class="flex-1 p-4 space-y-2">
 
-
       <button
+        class="nav-item active"
         data-page="dashboard"
-        class="nav-item active-nav"
       >
-        📊
+        <span>📊</span>
         <span>Dashboard</span>
       </button>
 
 
       <button
-        data-page="people"
         class="nav-item"
+        data-page="people"
       >
-        👥
+        <span>👥</span>
         <span>People</span>
       </button>
 
 
       <button
-        data-page="transactions"
         class="nav-item"
+        data-page="transactions"
       >
-        💳
+        <span>💳</span>
         <span>Transactions</span>
       </button>
 
 
       <button
-        data-page="reports"
         class="nav-item"
+        data-page="reports"
       >
-        📄
+        <span>📄</span>
         <span>Reports</span>
       </button>
 
 
       <button
-        data-page="settings"
         class="nav-item"
+        data-page="settings"
       >
-        ⚙️
+        <span>⚙️</span>
         <span>Settings</span>
       </button>
-
 
     </nav>
 
@@ -288,36 +461,46 @@
 
     <div
       class="p-4
-             border-t border-slate-200
+             border-t
+             border-slate-200
              dark:border-slate-800"
     >
 
       <div
-        class="flex items-center gap-3
-               p-3 rounded-xl
+        class="flex
+               items-center
+               gap-3
+               p-3
+               rounded-xl
                bg-slate-50
                dark:bg-slate-800/70"
       >
 
         <img
-          id="userPhoto"
+          id="sidebarUserPhoto"
           src="https://ui-avatars.com/api/?name=User&background=2563eb&color=fff"
           class="w-10 h-10 rounded-full"
           alt="User"
         >
 
+
         <div class="min-w-0 flex-1">
 
           <p
-            id="userName"
-            class="font-semibold text-sm truncate"
+            id="sidebarUserName"
+            class="font-semibold
+                   text-sm
+                   truncate"
           >
             Guest User
           </p>
 
+
           <p
-            id="userEmail"
-            class="text-xs text-slate-500 truncate"
+            id="sidebarUserEmail"
+            class="text-xs
+                   text-slate-500
+                   truncate"
           >
             Sign in to sync
           </p>
@@ -335,10 +518,14 @@
 
 <div
   id="sidebarOverlay"
-  class="fixed inset-0 z-40
-         bg-black/50 hidden lg:hidden"
+  class="fixed inset-0
+         z-40
+         hidden
+         bg-black/50
+         lg:hidden"
 >
 </div>
+
 
 
 <!-- =========================================================
@@ -349,15 +536,19 @@
 
 
 <!-- =========================================================
-     DESKTOP TOP BAR
+     DESKTOP TOPBAR
 ========================================================= -->
 
 <div
-  class="hidden lg:flex h-20
-         items-center justify-between
+  class="hidden lg:flex
+         h-20
+         items-center
+         justify-between
          px-8
-         bg-white dark:bg-slate-900
-         border-b border-slate-200
+         bg-white
+         dark:bg-slate-900
+         border-b
+         border-slate-200
          dark:border-slate-800"
 >
 
@@ -370,7 +561,10 @@
       Dashboard
     </h1>
 
-    <p class="text-sm text-slate-500">
+    <p
+      class="text-sm
+             text-slate-500"
+    >
       Manage your money with confidence.
     </p>
 
@@ -380,21 +574,27 @@
   <div class="flex items-center gap-3">
 
     <button
-      id="themeBtn"
-      class="w-10 h-10 rounded-xl
-             bg-slate-100 dark:bg-slate-800"
+      id="desktopThemeBtn"
+      class="w-10 h-10
+             rounded-xl
+             bg-slate-100
+             dark:bg-slate-800"
+      aria-label="Toggle theme"
     >
       ☾
     </button>
 
 
     <button
-      id="topAddTransaction"
-      class="px-4 py-2.5 rounded-xl
+      id="desktopAddTransaction"
+      class="px-4 py-2.5
+             rounded-xl
              bg-primary-600
              hover:bg-primary-700
-             text-white font-semibold
-             shadow-lg shadow-blue-500/20"
+             text-white
+             font-semibold
+             shadow-lg
+             shadow-blue-500/20"
     >
       + Add Transaction
     </button>
@@ -404,32 +604,41 @@
 </div>
 
 
+
 <!-- =========================================================
-     DASHBOARD
+     DASHBOARD PAGE
 ========================================================= -->
 
 <section
   id="dashboardPage"
-  class="page p-4 sm:p-6 lg:p-8"
+  class="page-section p-4 sm:p-6 lg:p-8"
 >
 
 
   <div
-    class="flex flex-col sm:flex-row
+    class="mb-7
+           flex flex-col
+           sm:flex-row
            sm:items-center
            sm:justify-between
-           gap-4 mb-7"
+           gap-4"
   >
 
     <div>
 
-      <p class="text-sm text-slate-500">
+      <p
+        class="text-sm
+               text-slate-500"
+      >
         Welcome back 👋
       </p>
 
+
       <h2
-        class="text-2xl sm:text-3xl
-               font-extrabold mt-1"
+        class="text-2xl
+               sm:text-3xl
+               font-extrabold
+               mt-1"
       >
         Your Money Overview
       </h2>
@@ -440,7 +649,10 @@
     <button
       id="mobileAddTransaction"
       class="lg:hidden
-             px-5 py-3 rounded-xl
+             w-full
+             sm:w-auto
+             px-5 py-3
+             rounded-xl
              bg-primary-600
              text-white
              font-semibold"
@@ -451,45 +663,68 @@
   </div>
 
 
-  <!-- Summary -->
+
+  <!-- Summary Cards -->
 
   <div
-    class="grid grid-cols-1
+    class="grid
+           grid-cols-1
            sm:grid-cols-2
            xl:grid-cols-3
-           gap-4 mb-8"
+           gap-4
+           mb-8"
   >
 
 
+    <!-- Given -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5 soft-shadow"
+             rounded-2xl
+             p-5
+             card-shadow"
     >
 
-      <div class="flex justify-between">
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
 
         <div>
 
-          <p class="text-sm text-slate-500">
+          <p
+            class="text-sm
+                   text-slate-500"
+          >
             Total Given
           </p>
 
-          <p
+
+          <h3
             id="totalGiven"
-            class="text-2xl font-extrabold mt-2"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
           >
             ₹0.00
-          </p>
+          </h3>
 
         </div>
 
+
         <div
-          class="w-11 h-11 rounded-xl
-                 bg-red-50 dark:bg-red-500/10
+          class="w-11 h-11
+                 rounded-xl
+                 bg-red-50
+                 dark:bg-red-500/10
                  text-red-600
-                 flex items-center justify-center
+                 flex items-center
+                 justify-center
                  text-xl"
         >
           ↑
@@ -497,43 +732,68 @@
 
       </div>
 
-      <p class="text-xs text-slate-400 mt-4">
+
+      <p
+        class="text-xs
+               text-slate-400
+               mt-4"
+      >
         Money you have given
       </p>
 
     </div>
 
 
+
+    <!-- Received -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5 soft-shadow"
+             rounded-2xl
+             p-5
+             card-shadow"
     >
 
-      <div class="flex justify-between">
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
 
         <div>
 
-          <p class="text-sm text-slate-500">
+          <p
+            class="text-sm
+                   text-slate-500"
+          >
             Total Received
           </p>
 
-          <p
+
+          <h3
             id="totalReceived"
-            class="text-2xl font-extrabold mt-2"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
           >
             ₹0.00
-          </p>
+          </h3>
 
         </div>
 
+
         <div
-          class="w-11 h-11 rounded-xl
+          class="w-11 h-11
+                 rounded-xl
                  bg-emerald-50
                  dark:bg-emerald-500/10
                  text-emerald-600
-                 flex items-center justify-center
+                 flex items-center
+                 justify-center
                  text-xl"
         >
           ↓
@@ -541,44 +801,66 @@
 
       </div>
 
-      <p class="text-xs text-slate-400 mt-4">
+
+      <p
+        class="text-xs
+               text-slate-400
+               mt-4"
+      >
         Money you have received
       </p>
 
     </div>
 
 
+
+    <!-- Net -->
+
     <div
       class="bg-primary-600
              text-white
-             rounded-2xl p-5
+             rounded-2xl
+             p-5
              shadow-xl
              shadow-blue-500/20
              sm:col-span-2
              xl:col-span-1"
     >
 
-      <div class="flex justify-between">
+      <div
+        class="flex
+               items-start
+               justify-between"
+      >
 
         <div>
 
-          <p class="text-sm text-blue-100">
+          <p
+            class="text-sm
+                   text-blue-100"
+          >
             Net Balance
           </p>
 
-          <p
+
+          <h3
             id="netBalance"
-            class="text-2xl font-extrabold mt-2"
+            class="text-2xl
+                   font-extrabold
+                   mt-2"
           >
             ₹0.00
-          </p>
+          </h3>
 
         </div>
 
+
         <div
-          class="w-11 h-11 rounded-xl
+          class="w-11 h-11
+                 rounded-xl
                  bg-white/15
-                 flex items-center justify-center
+                 flex items-center
+                 justify-center
                  text-xl"
         >
           ₹
@@ -586,7 +868,12 @@
 
       </div>
 
-      <p class="text-xs text-blue-100 mt-4">
+
+      <p
+        class="text-xs
+               text-blue-100
+               mt-4"
+      >
         Given minus received
       </p>
 
@@ -595,86 +882,137 @@
   </div>
 
 
+
   <!-- Quick Actions -->
 
   <div class="mb-8">
 
-    <h3 class="font-bold text-lg mb-4">
+    <h3
+      class="font-bold
+             text-lg
+             mb-4"
+    >
       Quick Actions
     </h3>
 
 
     <div
-      class="grid grid-cols-2
-             sm:grid-cols-4 gap-3"
+      class="grid
+             grid-cols-2
+             sm:grid-cols-4
+             gap-3"
     >
 
+
       <button
         class="quick-action"
-        data-action="given"
+        data-quick="given"
       >
-        <span class="text-xl">💸</span>
-        <span>Money Given</span>
+
+        <span class="text-2xl">
+          💸
+        </span>
+
+        <span>
+          Money Given
+        </span>
+
       </button>
 
 
       <button
         class="quick-action"
-        data-action="received"
+        data-quick="received"
       >
-        <span class="text-xl">💰</span>
-        <span>Money Received</span>
+
+        <span class="text-2xl">
+          💰
+        </span>
+
+        <span>
+          Money Received
+        </span>
+
       </button>
 
 
       <button
         class="quick-action"
-        data-action="person"
+        data-quick="person"
       >
-        <span class="text-xl">👤</span>
-        <span>Add Person</span>
+
+        <span class="text-2xl">
+          👤
+        </span>
+
+        <span>
+          Add Person
+        </span>
+
       </button>
 
 
       <button
         class="quick-action"
-        data-action="report"
+        data-quick="report"
       >
-        <span class="text-xl">📄</span>
-        <span>Statement</span>
+
+        <span class="text-2xl">
+          📄
+        </span>
+
+        <span>
+          Statement
+        </span>
+
       </button>
+
 
     </div>
 
   </div>
 
 
-  <!-- People -->
+
+  <!-- Dashboard People -->
 
   <div
-    class="bg-white dark:bg-slate-900
-           border border-slate-200
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
            dark:border-slate-800
-           rounded-2xl overflow-hidden"
+           rounded-2xl
+           overflow-hidden"
   >
 
     <div
       class="p-5
-             flex flex-col sm:flex-row
+             border-b
+             border-slate-200
+             dark:border-slate-800
+             flex
+             flex-col
+             sm:flex-row
              sm:items-center
              sm:justify-between
-             gap-3
-             border-b border-slate-200
-             dark:border-slate-800"
+             gap-3"
     >
 
       <div>
 
-        <h3 class="font-bold text-lg">
+        <h3
+          class="font-bold
+                 text-lg"
+        >
           People & Accounts
         </h3>
 
-        <p class="text-sm text-slate-500">
+
+        <p
+          class="text-sm
+                 text-slate-500"
+        >
           Your latest ledger accounts
         </p>
 
@@ -682,9 +1020,10 @@
 
 
       <button
-        id="viewAllPeople"
+        id="viewPeopleBtn"
         class="text-primary-600
-               font-semibold text-sm"
+               font-semibold
+               text-sm"
       >
         View All →
       </button>
@@ -700,8 +1039,10 @@
           id="dashboardSearch"
           type="search"
           placeholder="Search people..."
-          class="w-full rounded-xl
-                 border border-slate-200
+          class="w-full
+                 rounded-xl
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -712,7 +1053,9 @@
         >
 
         <span
-          class="absolute left-4 top-3.5
+          class="absolute
+                 left-4
+                 top-3.5
                  text-slate-400"
         >
           🔎
@@ -736,29 +1079,41 @@
 </section>
 
 
+
 <!-- =========================================================
      PEOPLE PAGE
 ========================================================= -->
 
 <section
   id="peoplePage"
-  class="page hidden p-4 sm:p-6 lg:p-8"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
 >
 
   <div
-    class="flex flex-col sm:flex-row
+    class="flex
+           flex-col
+           sm:flex-row
            sm:items-center
            sm:justify-between
-           gap-4 mb-6"
+           gap-4
+           mb-6"
   >
 
     <div>
 
-      <h2 class="text-2xl font-extrabold">
+      <h2
+        class="text-2xl
+               font-extrabold"
+      >
         People
       </h2>
 
-      <p class="text-sm text-slate-500">
+
+      <p
+        class="text-sm
+               text-slate-500"
+      >
         Manage your ledger accounts.
       </p>
 
@@ -766,10 +1121,12 @@
 
 
     <button
-      id="pageAddPerson"
-      class="px-5 py-3 rounded-xl
+      id="addPersonPageBtn"
+      class="px-5 py-3
+             rounded-xl
              bg-primary-600
-             text-white font-semibold"
+             text-white
+             font-semibold"
     >
       + Add Person
     </button>
@@ -777,16 +1134,23 @@
   </div>
 
 
+
   <div
-    class="bg-white dark:bg-slate-900
-           border border-slate-200
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
            dark:border-slate-800
-           rounded-2xl p-4 mb-5"
+           rounded-2xl
+           p-4
+           mb-5"
   >
 
     <div
-      class="grid grid-cols-1
-             sm:grid-cols-3 gap-3"
+      class="grid
+             grid-cols-1
+             sm:grid-cols-3
+             gap-3"
     >
 
       <input
@@ -794,23 +1158,27 @@
         type="search"
         placeholder="Search name or phone..."
         class="rounded-xl
-               border border-slate-200
+               border
+               border-slate-200
                dark:border-slate-700
                bg-slate-50
                dark:bg-slate-800
-               px-4 py-3 outline-none"
+               px-4 py-3
+               outline-none"
       >
 
 
       <select
         id="peopleStatus"
         class="rounded-xl
-               border border-slate-200
+               border
+               border-slate-200
                dark:border-slate-700
                bg-slate-50
                dark:bg-slate-800
                px-4 py-3"
       >
+
         <option value="all">
           All Status
         </option>
@@ -822,13 +1190,15 @@
         <option value="settled">
           Settled
         </option>
+
       </select>
 
 
       <select
         id="peopleSort"
         class="rounded-xl
-               border border-slate-200
+               border
+               border-slate-200
                dark:border-slate-700
                bg-slate-50
                dark:bg-slate-800
@@ -867,22 +1237,31 @@
 </section>
 
 
+
 <!-- =========================================================
      TRANSACTIONS PAGE
 ========================================================= -->
 
 <section
   id="transactionsPage"
-  class="page hidden p-4 sm:p-6 lg:p-8"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
 >
 
   <div class="mb-6">
 
-    <h2 class="text-2xl font-extrabold">
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
       Transactions
     </h2>
 
-    <p class="text-sm text-slate-500">
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
       Complete transaction history.
     </p>
 
@@ -890,10 +1269,13 @@
 
 
   <div
-    class="bg-white dark:bg-slate-900
-           border border-slate-200
+    class="bg-white
+           dark:bg-slate-900
+           border
+           border-slate-200
            dark:border-slate-800
-           rounded-2xl overflow-hidden"
+           rounded-2xl
+           overflow-hidden"
   >
 
     <div class="p-4">
@@ -902,12 +1284,15 @@
         id="transactionSearch"
         type="search"
         placeholder="Search transactions..."
-        class="w-full rounded-xl
-               border border-slate-200
+        class="w-full
+               rounded-xl
+               border
+               border-slate-200
                dark:border-slate-700
                bg-slate-50
                dark:bg-slate-800
-               px-4 py-3 outline-none"
+               px-4 py-3
+               outline-none"
       >
 
     </div>
@@ -926,55 +1311,84 @@
 </section>
 
 
+
 <!-- =========================================================
-     REPORT PAGE
+     REPORTS PAGE
 ========================================================= -->
 
 <section
   id="reportsPage"
-  class="page hidden p-4 sm:p-6 lg:p-8"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
 >
 
   <div class="mb-6">
 
-    <h2 class="text-2xl font-extrabold">
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
       Reports
     </h2>
 
-    <p class="text-sm text-slate-500">
-      Generate professional ledger statements.
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Generate professional financial statements.
     </p>
 
   </div>
 
 
   <div
-    class="grid grid-cols-1
-           md:grid-cols-2 gap-5"
+    class="grid
+           grid-cols-1
+           md:grid-cols-2
+           gap-5"
   >
 
+
+    <!-- Full -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-6"
+             rounded-2xl
+             p-6"
     >
 
       <div class="text-4xl mb-4">
         📄
       </div>
 
-      <h3 class="text-lg font-bold">
+
+      <h3
+        class="text-lg
+               font-bold"
+      >
         Full Statement
       </h3>
 
-      <p class="text-sm text-slate-500 mt-2">
-        Download all transactions as a PDF.
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Download all ledger transactions
+        in a professional PDF format.
       </p>
+
 
       <button
         id="fullPdfBtn"
-        class="mt-5 px-4 py-2.5
+        class="mt-5
+               px-4 py-2.5
                rounded-xl
                bg-primary-600
                text-white
@@ -986,31 +1400,49 @@
     </div>
 
 
+
+    <!-- Person -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-6"
+             rounded-2xl
+             p-6"
     >
 
       <div class="text-4xl mb-4">
         📊
       </div>
 
-      <h3 class="text-lg font-bold">
+
+      <h3
+        class="text-lg
+               font-bold"
+      >
         Account Statement
       </h3>
 
-      <p class="text-sm text-slate-500 mt-2">
-        Select a person and download their statement.
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Select a person and download their
+        complete account statement.
       </p>
 
 
       <select
         id="reportPerson"
-        class="w-full mt-4
+        class="w-full
+               mt-4
                rounded-xl
-               border border-slate-200
+               border
+               border-slate-200
                dark:border-slate-700
                bg-slate-50
                dark:bg-slate-800
@@ -1044,37 +1476,53 @@
 </section>
 
 
+
 <!-- =========================================================
-     SETTINGS PAGE
+     SETTINGS
 ========================================================= -->
 
 <section
   id="settingsPage"
-  class="page hidden p-4 sm:p-6 lg:p-8"
+  class="page-section hidden-page
+         p-4 sm:p-6 lg:p-8"
 >
 
   <div class="mb-6">
 
-    <h2 class="text-2xl font-extrabold">
+    <h2
+      class="text-2xl
+             font-extrabold"
+    >
       Settings
     </h2>
 
-    <p class="text-sm text-slate-500">
-      Manage your app preferences.
+
+    <p
+      class="text-sm
+             text-slate-500"
+    >
+      Manage your preferences and account.
     </p>
 
   </div>
 
 
-  <div class="max-w-2xl space-y-4">
+  <div
+    class="max-w-2xl
+           space-y-4"
+  >
 
 
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5
-             flex items-center
+             rounded-2xl
+             p-5
+             flex
+             items-center
              justify-between"
     >
 
@@ -1084,7 +1532,10 @@
           Appearance
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p
+          class="text-sm
+                 text-slate-500"
+        >
           Switch between light and dark mode.
         </p>
 
@@ -1104,14 +1555,24 @@
     </div>
 
 
+
+    <!-- Profile -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5"
+             rounded-2xl
+             p-5"
     >
 
-      <div class="flex items-center gap-3">
+      <div
+        class="flex
+               items-center
+               gap-3"
+      >
 
         <img
           id="settingsPhoto"
@@ -1119,6 +1580,7 @@
           class="w-12 h-12 rounded-full"
           alt="User"
         >
+
 
         <div>
 
@@ -1128,6 +1590,7 @@
           >
             Guest User
           </h3>
+
 
           <p
             id="settingsEmail"
@@ -1146,7 +1609,8 @@
         class="mt-5
                px-4 py-2.5
                rounded-xl
-               border border-red-200
+               border
+               border-red-200
                text-red-600
                font-semibold"
       >
@@ -1156,25 +1620,38 @@
     </div>
 
 
+
+    <!-- Install -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5"
+             rounded-2xl
+             p-5"
     >
 
       <h3 class="font-bold">
         Install Transaction Paper
       </h3>
 
-      <p class="text-sm text-slate-500 mt-2">
-        Install the ledger on your phone or computer like an app.
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2"
+      >
+        Install Transaction Paper on your phone
+        or computer like an app.
       </p>
 
 
       <button
         id="installAppBtn"
-        class="hidden mt-4
+        class="hidden
+               mt-4
                px-4 py-2.5
                rounded-xl
                bg-primary-600
@@ -1187,21 +1664,33 @@
     </div>
 
 
+
+    <!-- Security -->
+
     <div
-      class="bg-white dark:bg-slate-900
-             border border-slate-200
+      class="bg-white
+             dark:bg-slate-900
+             border
+             border-slate-200
              dark:border-slate-800
-             rounded-2xl p-5"
+             rounded-2xl
+             p-5"
     >
 
       <h3 class="font-bold">
         Privacy & Security
       </h3>
 
-      <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-        Your ledger records are stored under your authenticated
-        Firebase user account. Firestore security rules restrict
-        access to the owner's UID.
+
+      <p
+        class="text-sm
+               text-slate-500
+               mt-2
+               leading-relaxed"
+      >
+        Your records are stored under your authenticated
+        Firebase account. Firestore security rules restrict
+        access to your own user path.
       </p>
 
     </div>
@@ -1211,7 +1700,9 @@
 </section>
 
 
+
 </main>
+
 
 
 <!-- =========================================================
@@ -1220,35 +1711,52 @@
 
 <div
   id="personModal"
-  class="fixed inset-0 z-[70]
-         hidden items-center justify-center
-         p-4 modal-backdrop"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
 >
 
   <div
-    class="w-full max-w-md
-           bg-white dark:bg-slate-900
-           rounded-2xl shadow-2xl
+    class="w-full
+           max-w-md
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
            max-h-[90vh]
            overflow-y-auto"
   >
 
     <div
       class="p-5
-             border-b border-slate-200
+             border-b
+             border-slate-200
              dark:border-slate-800
-             flex items-center
+             flex
+             items-center
              justify-between"
     >
 
       <div>
 
-        <h3 class="font-bold text-lg">
+        <h3
+          class="font-bold
+                 text-lg"
+        >
           Add Person
         </h3>
 
-        <p class="text-xs text-slate-500">
-          Create a ledger account
+
+        <p
+          class="text-xs
+                 text-slate-500"
+        >
+          Create a new ledger account.
         </p>
 
       </div>
@@ -1256,7 +1764,8 @@
 
       <button
         id="closePersonModal"
-        class="w-9 h-9 rounded-lg
+        class="w-9 h-9
+               rounded-lg
                bg-slate-100
                dark:bg-slate-800"
       >
@@ -1275,24 +1784,32 @@
 
         <label
           for="personName"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Full Name
         </label>
+
 
         <input
           id="personName"
           type="text"
           required
+          maxlength="100"
           placeholder="e.g. Rahul Sharma"
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
                  px-4 py-3
-                 outline-none"
+                 outline-none
+                 focus:ring-2
+                 focus:ring-primary-500"
         >
 
       </div>
@@ -1302,18 +1819,24 @@
 
         <label
           for="personPhone"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Mobile Number
         </label>
 
+
         <input
           id="personPhone"
           type="tel"
+          maxlength="15"
           placeholder="10 digit mobile number"
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -1328,18 +1851,24 @@
 
         <label
           for="personNote"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Note
         </label>
 
+
         <textarea
           id="personNote"
           rows="3"
+          maxlength="500"
           placeholder="Optional note..."
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -1351,9 +1880,11 @@
 
 
       <button
+        id="savePersonBtn"
         type="submit"
         class="w-full
-               py-3 rounded-xl
+               py-3
+               rounded-xl
                bg-primary-600
                hover:bg-primary-700
                text-white
@@ -1369,41 +1900,59 @@
 </div>
 
 
+
 <!-- =========================================================
      ADD TRANSACTION MODAL
 ========================================================= -->
 
 <div
   id="transactionModal"
-  class="fixed inset-0 z-[70]
-         hidden items-center justify-center
-         p-4 modal-backdrop"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
 >
 
   <div
-    class="w-full max-w-md
-           bg-white dark:bg-slate-900
-           rounded-2xl shadow-2xl
+    class="w-full
+           max-w-md
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
            max-h-[90vh]
            overflow-y-auto"
   >
 
     <div
       class="p-5
-             border-b border-slate-200
+             border-b
+             border-slate-200
              dark:border-slate-800
-             flex items-center
+             flex
+             items-center
              justify-between"
     >
 
       <div>
 
-        <h3 class="font-bold text-lg">
+        <h3
+          class="font-bold
+                 text-lg"
+        >
           Add Transaction
         </h3>
 
-        <p class="text-xs text-slate-500">
-          Record money given or received
+
+        <p
+          class="text-xs
+                 text-slate-500"
+        >
+          Record money given or received.
         </p>
 
       </div>
@@ -1411,7 +1960,8 @@
 
       <button
         id="closeTransactionModal"
-        class="w-9 h-9 rounded-lg
+        class="w-9 h-9
+               rounded-lg
                bg-slate-100
                dark:bg-slate-800"
       >
@@ -1427,14 +1977,25 @@
     >
 
 
+      <!-- Type -->
+
       <div>
 
-        <label class="block text-sm font-medium mb-2">
+        <label
+          class="block
+                 text-sm
+                 font-medium
+                 mb-2"
+        >
           Transaction Type
         </label>
 
 
-        <div class="grid grid-cols-2 gap-3">
+        <div
+          class="grid
+                 grid-cols-2
+                 gap-3"
+        >
 
 
           <label class="cursor-pointer">
@@ -1447,11 +2008,14 @@
               class="peer hidden"
             >
 
+
             <div
               class="rounded-xl
-                     border border-slate-200
+                     border
+                     border-slate-200
                      dark:border-slate-700
-                     p-3 text-center
+                     p-3
+                     text-center
                      peer-checked:border-red-500
                      peer-checked:bg-red-50
                      dark:peer-checked:bg-red-500/10"
@@ -1471,11 +2035,14 @@
               class="peer hidden"
             >
 
+
             <div
               class="rounded-xl
-                     border border-slate-200
+                     border
+                     border-slate-200
                      dark:border-slate-700
-                     p-3 text-center
+                     p-3
+                     text-center
                      peer-checked:border-emerald-500
                      peer-checked:bg-emerald-50
                      dark:peer-checked:bg-emerald-500/10"
@@ -1490,11 +2057,17 @@
       </div>
 
 
+
+      <!-- Person -->
+
       <div>
 
         <label
           for="transactionPerson"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Person
         </label>
@@ -1505,7 +2078,8 @@
           required
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -1521,14 +2095,21 @@
       </div>
 
 
+
+      <!-- Amount -->
+
       <div>
 
         <label
           for="transactionAmount"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Amount (₹)
         </label>
+
 
         <input
           id="transactionAmount"
@@ -1536,10 +2117,12 @@
           required
           min="0.01"
           step="0.01"
+          inputmode="decimal"
           placeholder="1000"
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -1550,14 +2133,21 @@
       </div>
 
 
+
+      <!-- Date -->
+
       <div>
 
         <label
           for="transactionDate"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
           Date
         </label>
+
 
         <input
           id="transactionDate"
@@ -1565,7 +2155,8 @@
           required
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
@@ -1574,36 +2165,49 @@
 
       </div>
 
+
+
+      <!-- Note -->
 
       <div>
 
         <label
           for="transactionNote"
-          class="block text-sm font-medium mb-1"
+          class="block
+                 text-sm
+                 font-medium
+                 mb-1"
         >
-          Note
+          Note / Description
         </label>
+
 
         <textarea
           id="transactionNote"
           rows="3"
-          placeholder="Purpose or additional details..."
+          maxlength="500"
+          placeholder="Personal loan, payment, advance..."
           class="w-full
                  rounded-xl
-                 border border-slate-200
+                 border
+                 border-slate-200
                  dark:border-slate-700
                  bg-slate-50
                  dark:bg-slate-800
-                 px-4 py-3"
+                 px-4 py-3
+                 outline-none"
         ></textarea>
 
       </div>
 
 
+
       <button
+        id="saveTransactionBtn"
         type="submit"
         class="w-full
-               py-3 rounded-xl
+               py-3
+               rounded-xl
                bg-primary-600
                hover:bg-primary-700
                text-white
@@ -1612,6 +2216,7 @@
         Save Transaction
       </button>
 
+
     </form>
 
   </div>
@@ -1619,43 +2224,68 @@
 </div>
 
 
+
 <!-- =========================================================
-     PERSON DETAIL MODAL
+     PERSON DETAIL
 ========================================================= -->
 
 <div
   id="personDetailModal"
-  class="fixed inset-0 z-[70]
-         hidden items-center justify-center
-         p-4 modal-backdrop"
+  class="fixed
+         inset-0
+         z-[80]
+         hidden
+         items-center
+         justify-center
+         p-4
+         modal-backdrop"
 >
 
   <div
-    class="w-full max-w-2xl
-           bg-white dark:bg-slate-900
-           rounded-2xl shadow-2xl
+    class="w-full
+           max-w-2xl
+           bg-white
+           dark:bg-slate-900
+           rounded-2xl
+           shadow-2xl
            max-h-[90vh]
            overflow-y-auto"
   >
 
+
     <div
       class="p-5
-             border-b border-slate-200
+             border-b
+             border-slate-200
              dark:border-slate-800"
     >
 
-      <div class="flex justify-between gap-3">
+      <div
+        class="flex
+               items-start
+               justify-between
+               gap-3"
+      >
 
-        <div class="flex items-center gap-3">
+
+        <div
+          class="flex
+                 items-center
+                 gap-3"
+        >
 
           <div
             id="detailAvatar"
-            class="w-12 h-12 rounded-full
+            class="w-12 h-12
+                   rounded-full
                    bg-primary-100
                    dark:bg-primary-500/20
                    text-primary-700
-                   flex items-center justify-center
-                   font-bold text-lg"
+                   flex
+                   items-center
+                   justify-center
+                   font-bold
+                   text-lg"
           >
             U
           </div>
@@ -1665,14 +2295,17 @@
 
             <h3
               id="detailName"
-              class="font-bold text-lg"
+              class="font-bold
+                     text-lg"
             >
               Person
             </h3>
 
+
             <p
               id="detailPhone"
-              class="text-sm text-slate-500"
+              class="text-sm
+                     text-slate-500"
             >
             </p>
 
@@ -1683,7 +2316,8 @@
 
         <button
           id="closeDetailModal"
-          class="w-9 h-9 rounded-lg
+          class="w-9 h-9
+                 rounded-lg
                  bg-slate-100
                  dark:bg-slate-800"
         >
@@ -1693,23 +2327,36 @@
       </div>
 
 
+
+      <!-- Mini summary -->
+
       <div
-        class="grid grid-cols-3 gap-2 mt-5"
+        class="grid
+               grid-cols-3
+               gap-2
+               mt-5"
       >
 
         <div
-          class="p-3 rounded-xl
+          class="p-3
+                 rounded-xl
                  bg-red-50
                  dark:bg-red-500/10"
         >
 
-          <p class="text-xs text-slate-500">
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
             Given
           </p>
 
+
           <p
             id="detailGiven"
-            class="font-bold text-red-600 mt-1"
+            class="font-bold
+                   text-red-600
+                   mt-1"
           >
             ₹0
           </p>
@@ -1718,18 +2365,25 @@
 
 
         <div
-          class="p-3 rounded-xl
+          class="p-3
+                 rounded-xl
                  bg-emerald-50
                  dark:bg-emerald-500/10"
         >
 
-          <p class="text-xs text-slate-500">
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
             Received
           </p>
 
+
           <p
             id="detailReceived"
-            class="font-bold text-emerald-600 mt-1"
+            class="font-bold
+                   text-emerald-600
+                   mt-1"
           >
             ₹0
           </p>
@@ -1738,18 +2392,25 @@
 
 
         <div
-          class="p-3 rounded-xl
+          class="p-3
+                 rounded-xl
                  bg-blue-50
                  dark:bg-blue-500/10"
         >
 
-          <p class="text-xs text-slate-500">
+          <p
+            class="text-xs
+                   text-slate-500"
+          >
             Balance
           </p>
 
+
           <p
             id="detailBalance"
-            class="font-bold text-primary-600 mt-1"
+            class="font-bold
+                   text-primary-600
+                   mt-1"
           >
             ₹0
           </p>
@@ -1759,19 +2420,26 @@
       </div>
 
 
+
+      <!-- WhatsApp -->
+
       <a
         id="whatsappReminder"
         href="#"
         target="_blank"
         rel="noopener"
-        class="mt-4 w-full
-               flex items-center
+        class="mt-4
+               w-full
+               flex
+               items-center
                justify-center
                gap-2
-               py-3 rounded-xl
+               py-3
+               rounded-xl
                bg-emerald-600
                hover:bg-emerald-700
-               text-white font-semibold"
+               text-white
+               font-semibold"
       >
         💬 Send WhatsApp Reminder
       </a>
@@ -1779,9 +2447,15 @@
     </div>
 
 
+
+    <!-- Timeline -->
+
     <div class="p-5">
 
-      <h4 class="font-bold mb-4">
+      <h4
+        class="font-bold
+               mb-4"
+      >
         Transaction Timeline
       </h4>
 
@@ -1799,26 +2473,34 @@
 </div>
 
 
+
 <!-- =========================================================
      LOGIN SCREEN
 ========================================================= -->
 
 <div
   id="loginScreen"
-  class="fixed inset-0 z-[100]
+  class="fixed
+         inset-0
+         z-[100]
          bg-slate-50
          dark:bg-slate-950
-         flex items-center
+         flex
+         items-center
          justify-center
          p-4"
 >
 
-  <div class="w-full max-w-md">
+  <div
+    class="w-full
+           max-w-md"
+  >
 
     <div
       class="bg-white
              dark:bg-slate-900
-             border border-slate-200
+             border
+             border-slate-200
              dark:border-slate-800
              rounded-3xl
              p-7 sm:p-9
@@ -1827,12 +2509,15 @@
 
       <div class="text-center">
 
+
         <div
-          class="mx-auto w-16 h-16
+          class="mx-auto
+                 w-16 h-16
                  rounded-2xl
                  bg-primary-600
                  text-white
-                 flex items-center
+                 flex
+                 items-center
                  justify-center
                  text-2xl
                  font-extrabold"
@@ -1842,15 +2527,19 @@
 
 
         <h1
-          class="text-2xl sm:text-3xl
-                 font-extrabold mt-5"
+          class="text-2xl
+                 sm:text-3xl
+                 font-extrabold
+                 mt-5"
         >
           Transaction Paper
         </h1>
 
 
         <p
-          class="text-sm text-slate-500 mt-2"
+          class="text-sm
+                 text-slate-500
+                 mt-2"
         >
           Your secure personal financial ledger.
         </p>
@@ -1858,22 +2547,29 @@
       </div>
 
 
+
       <button
         id="googleLoginBtn"
-        class="mt-8 w-full
-               flex items-center
+        class="mt-8
+               w-full
+               flex
+               items-center
                justify-center
                gap-3
-               px-5 py-3.5
+               px-5
+               py-3.5
                rounded-xl
-               border border-slate-300
+               border
+               border-slate-300
                dark:border-slate-700
                bg-white
                dark:bg-slate-800
                hover:bg-slate-50
                dark:hover:bg-slate-700
-               font-semibold"
+               font-semibold
+               transition"
       >
+
 
         <svg
           class="w-5 h-5"
@@ -1893,7 +2589,7 @@
 
           <path
             fill="#FBBC05"
-            d="M6.54 14.09a5.86 5.86 0 0 1 0-3.76V7.82H3.3a9.99 9.99 0 0 0 0 8.78l3.24 2.51z"
+            d="M6.54 14.09a5.86 5.86 0 0 1 0-3.76V7.82H3.3a9.99 9.99 0 0 0 0 8.78l3.24-2.51z"
           />
 
           <path
@@ -1903,12 +2599,20 @@
 
         </svg>
 
+
         Continue with Google
 
       </button>
 
 
-      <div class="grid grid-cols-3 gap-3 mt-7 text-center">
+
+      <div
+        class="grid
+               grid-cols-3
+               gap-3
+               mt-7
+               text-center"
+      >
 
         <div>
 
@@ -1916,7 +2620,10 @@
             🔐
           </div>
 
-          <p class="text-[11px] text-slate-500">
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
             Secure
           </p>
 
@@ -1929,8 +2636,11 @@
             ☁️
           </div>
 
-          <p class="text-[11px] text-slate-500">
-            Cloud Backup
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
+            Cloud Sync
           </p>
 
         </div>
@@ -1942,7 +2652,10 @@
             📱
           </div>
 
-          <p class="text-[11px] text-slate-500">
+          <p
+            class="text-[11px]
+                   text-slate-500"
+          >
             Mobile Ready
           </p>
 
@@ -1950,11 +2663,25 @@
 
       </div>
 
+
+
+      <p
+        class="text-[11px]
+               text-center
+               text-slate-400
+               mt-7
+               leading-relaxed"
+      >
+        Transaction Paper is a personal ledger application.
+        Use it responsibly for your own financial records.
+      </p>
+
     </div>
 
   </div>
 
 </div>
+
 
 
 <!-- =========================================================
@@ -1973,7 +2700,8 @@
 
   <div
     id="toastText"
-    class="px-5 py-3
+    class="px-5
+           py-3
            rounded-xl
            bg-slate-900
            dark:bg-white
@@ -1988,15 +2716,22 @@
 </div>
 
 
+
 <!-- =========================================================
-     FIREBASE APPLICATION
+     APPLICATION SCRIPT
 ========================================================= -->
 
 <script type="module">
 
+/* =========================================================
+   FIREBASE IMPORTS
+========================================================= */
+
 import {
   initializeApp
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
 
 import {
@@ -2006,7 +2741,9 @@ import {
   signInWithRedirect,
   signOut,
   onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 
 import {
@@ -2014,9 +2751,10 @@ import {
   collection,
   addDoc,
   getDocs,
-  query,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 
 
@@ -2049,19 +2787,25 @@ const firebaseConfig = {
 
 
 /* =========================================================
-   FIREBASE INIT
+   FIREBASE INITIALIZATION
 ========================================================= */
 
 const firebaseApp =
-  initializeApp(firebaseConfig);
+  initializeApp(
+    firebaseConfig
+  );
 
 
 const auth =
-  getAuth(firebaseApp);
+  getAuth(
+    firebaseApp
+  );
 
 
 const db =
-  getFirestore(firebaseApp);
+  getFirestore(
+    firebaseApp
+  );
 
 
 const googleProvider =
@@ -2073,81 +2817,32 @@ const googleProvider =
    GLOBAL STATE
 ========================================================= */
 
-let currentUser = null;
+let currentUser =
+  null;
 
-let people = [];
 
-let transactions = [];
+let people =
+  [];
 
-let deferredInstallPrompt = null;
+
+let transactions =
+  [];
+
+
+let deferredInstallPrompt =
+  null;
 
 
 
 /* =========================================================
-   ELEMENT HELPER
+   HELPER
 ========================================================= */
 
 const $ =
   id =>
-    document.getElementById(id);
-
-
-
-/* =========================================================
-   CURRENCY
-========================================================= */
-
-function money(value) {
-
-  return new Intl.NumberFormat(
-    "en-IN",
-    {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }
-  ).format(
-    Number(value || 0)
-  );
-
-}
-
-
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-
-/* =========================================================
-   DATE
-========================================================= */
-
-function today() {
-
-  return new Date()
-    .toISOString()
-    .slice(0, 10);
-
-}
-
-
-
-$("transactionDate").value =
-  today();
+    document.getElementById(
+      id
+    );
 
 
 
@@ -2155,33 +2850,46 @@ $("transactionDate").value =
    TOAST
 ========================================================= */
 
-function toast(message) {
+function showToast(
+  message
+) {
 
-  const box =
+  const toast =
     $("toast");
+
 
   const text =
     $("toastText");
 
-  if (!box || !text) {
+
+  if (
+    !toast ||
+    !text
+  ) {
+
     return;
+
   }
+
 
   text.textContent =
     message;
 
-  box.classList.remove(
+
+  toast.classList.remove(
     "hidden"
   );
 
+
   clearTimeout(
-    window.__tpToast
+    window.tpToastTimer
   );
 
-  window.__tpToast =
+
+  window.tpToastTimer =
     setTimeout(
       () =>
-        box.classList.add(
+        toast.classList.add(
           "hidden"
         ),
       2800
@@ -2195,32 +2903,52 @@ function toast(message) {
    MODALS
 ========================================================= */
 
-function openModal(id) {
+function openModal(
+  id
+) {
 
-  $(id)
-    ?.classList.remove(
-      "hidden"
-    );
+  const element =
+    $(id);
 
-  $(id)
-    ?.classList.add(
-      "flex"
-    );
+
+  if (!element) {
+    return;
+  }
+
+
+  element.classList.remove(
+    "hidden"
+  );
+
+
+  element.classList.add(
+    "flex"
+  );
 
 }
 
 
-function closeModal(id) {
+function closeModal(
+  id
+) {
 
-  $(id)
-    ?.classList.add(
-      "hidden"
-    );
+  const element =
+    $(id);
 
-  $(id)
-    ?.classList.remove(
-      "flex"
-    );
+
+  if (!element) {
+    return;
+  }
+
+
+  element.classList.add(
+    "hidden"
+  );
+
+
+  element.classList.remove(
+    "flex"
+  );
 
 }
 
@@ -2230,16 +2958,18 @@ function closeModal(id) {
    THEME
 ========================================================= */
 
-function applyTheme(theme) {
+function applyTheme(
+  theme
+) {
 
-  document.documentElement
-    .classList.toggle(
-      "dark",
-      theme === "dark"
-    );
+  document.documentElement.classList.toggle(
+    "dark",
+    theme === "dark"
+  );
+
 
   localStorage.setItem(
-    "tp-theme",
+    "transaction-paper-theme",
     theme
   );
 
@@ -2248,11 +2978,13 @@ function applyTheme(theme) {
 
 const savedTheme =
   localStorage.getItem(
-    "tp-theme"
+    "transaction-paper-theme"
   );
 
 
-if (savedTheme) {
+if (
+  savedTheme
+) {
 
   applyTheme(
     savedTheme
@@ -2273,8 +3005,14 @@ if (savedTheme) {
 
 function toggleTheme() {
 
+  const dark =
+    document.documentElement.classList.contains(
+      "dark"
+    );
+
+
   applyTheme(
-    document.documentElement.classList.contains("dark")
+    dark
       ? "light"
       : "dark"
   );
@@ -2282,7 +3020,7 @@ function toggleTheme() {
 }
 
 
-$("themeBtn")
+$("desktopThemeBtn")
   ?.addEventListener(
     "click",
     toggleTheme
@@ -2315,6 +3053,7 @@ function openSidebar() {
       "-translate-x-full"
     );
 
+
   $("sidebarOverlay")
     ?.classList.remove(
       "hidden"
@@ -2329,6 +3068,7 @@ function closeSidebar() {
     ?.classList.add(
       "-translate-x-full"
     );
+
 
   $("sidebarOverlay")
     ?.classList.add(
@@ -2354,10 +3094,10 @@ $("sidebarOverlay")
 
 
 /* =========================================================
-   NAVIGATION
+   PAGE NAVIGATION
 ========================================================= */
 
-const pageNames = [
+const pageIds = [
   "dashboard",
   "people",
   "transactions",
@@ -2366,20 +3106,52 @@ const pageNames = [
 ];
 
 
-function showPage(page) {
+const pageTitles = {
 
-  for (
-    const name
-    of pageNames
-  ) {
+  dashboard:
+    "Dashboard",
 
-    $(name + "Page")
-      ?.classList.toggle(
-        "hidden",
+  people:
+    "People",
+
+  transactions:
+    "Transactions",
+
+  reports:
+    "Reports",
+
+  settings:
+    "Settings"
+
+};
+
+
+function showPage(
+  page
+) {
+
+  pageIds.forEach(
+    name => {
+
+      const section =
+        $(
+          name +
+          "Page"
+        );
+
+
+      if (!section) {
+        return;
+      }
+
+
+      section.classList.toggle(
+        "hidden-page",
         name !== page
       );
 
-  }
+    }
+  );
 
 
   document
@@ -2389,65 +3161,58 @@ function showPage(page) {
     .forEach(
       button => {
 
-        const active =
+        button.classList.toggle(
+          "active",
           button.dataset.page ===
-          page;
-
-        button.classList.toggle(
-          "bg-primary-50",
-          active
-        );
-
-        button.classList.toggle(
-          "dark:bg-primary-500/10",
-          active
-        );
-
-        button.classList.toggle(
-          "text-primary-700",
-          active
-        );
-
-        button.classList.toggle(
-          "dark:text-primary-400",
-          active
-        );
-
-        button.classList.toggle(
-          "font-semibold",
-          active
+          page
         );
 
       }
     );
 
 
-  const titles = {
+  if (
+    $("pageTitle")
+  ) {
 
-    dashboard:
-      "Dashboard",
+    $("pageTitle").textContent =
+      pageTitles[page] ||
+      "Transaction Paper";
 
-    people:
-      "People",
-
-    transactions:
-      "Transactions",
-
-    reports:
-      "Reports",
-
-    settings:
-      "Settings"
-
-  };
-
-
-  $("pageTitle").textContent =
-    titles[page] ||
-    "Transaction Paper";
+  }
 
 
   closeSidebar();
+
+
+  if (
+    page ===
+    "people"
+  ) {
+
+    renderPeople();
+
+  }
+
+
+  if (
+    page ===
+    "transactions"
+  ) {
+
+    renderTransactions();
+
+  }
+
+
+  if (
+    page ===
+    "reports"
+  ) {
+
+    renderReportSelect();
+
+  }
 
 }
 
@@ -2471,7 +3236,7 @@ document
   );
 
 
-$("viewAllPeople")
+$("viewPeopleBtn")
   ?.addEventListener(
     "click",
     () =>
@@ -2481,11 +3246,132 @@ $("viewAllPeople")
   );
 
 
+
 /* =========================================================
-   FIRESTORE PATHS
+   DATE
 ========================================================= */
 
-function peopleRef() {
+function todayISO() {
+
+  return new Date()
+    .toISOString()
+    .slice(
+      0,
+      10
+    );
+
+}
+
+
+$("transactionDate").value =
+  todayISO();
+
+
+
+/* =========================================================
+   CURRENCY
+========================================================= */
+
+function formatINR(
+  amount
+) {
+
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style:
+        "currency",
+
+      currency:
+        "INR",
+
+      minimumFractionDigits:
+        2,
+
+      maximumFractionDigits:
+        2
+    }
+  ).format(
+    Number(
+      amount || 0
+    )
+  );
+
+}
+
+
+function pdfINR(
+  amount
+) {
+
+  return (
+    "INR " +
+    Number(
+      amount || 0
+    ).toLocaleString(
+      "en-IN",
+      {
+        minimumFractionDigits:
+          2,
+
+        maximumFractionDigits:
+          2
+      }
+    )
+  );
+
+}
+
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(
+  value
+) {
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+
+/* =========================================================
+   FIRESTORE REFERENCES
+========================================================= */
+
+function peopleCollection() {
+
+  if (!currentUser) {
+    throw new Error(
+      "User not authenticated."
+    );
+  }
+
 
   return collection(
     db,
@@ -2497,7 +3383,14 @@ function peopleRef() {
 }
 
 
-function transactionsRef() {
+function transactionsCollection() {
+
+  if (!currentUser) {
+    throw new Error(
+      "User not authenticated."
+    );
+  }
+
 
   return collection(
     db,
@@ -2511,7 +3404,7 @@ function transactionsRef() {
 
 
 /* =========================================================
-   AUTHENTICATION
+   GOOGLE LOGIN
 ========================================================= */
 
 $("googleLoginBtn")
@@ -2521,7 +3414,7 @@ $("googleLoginBtn")
 
       try {
 
-        toast(
+        showToast(
           "Opening Google sign-in..."
         );
 
@@ -2545,10 +3438,28 @@ $("googleLoginBtn")
           "auth/popup-blocked"
         ) {
 
-          await signInWithRedirect(
-            auth,
-            googleProvider
-          );
+          try {
+
+            await signInWithRedirect(
+              auth,
+              googleProvider
+            );
+
+          } catch (
+            redirectError
+          ) {
+
+            console.error(
+              redirectError
+            );
+
+
+            showToast(
+              "Google sign-in could not start."
+            );
+
+          }
+
 
           return;
 
@@ -2560,7 +3471,7 @@ $("googleLoginBtn")
           "auth/popup-closed-by-user"
         ) {
 
-          toast(
+          showToast(
             error.message ||
             "Google sign-in failed."
           );
@@ -2574,6 +3485,10 @@ $("googleLoginBtn")
 
 
 
+/* =========================================================
+   SIGN OUT
+========================================================= */
+
 $("logoutBtn")
   ?.addEventListener(
     "click",
@@ -2585,13 +3500,21 @@ $("logoutBtn")
           auth
         );
 
-      } catch (error) {
+
+        showToast(
+          "Signed out successfully."
+        );
+
+      } catch (
+        error
+      ) {
 
         console.error(
           error
         );
 
-        toast(
+
+        showToast(
           "Sign out failed."
         );
 
@@ -2611,7 +3534,8 @@ onAuthStateChanged(
   async user => {
 
     currentUser =
-      user || null;
+      user ||
+      null;
 
 
     if (!user) {
@@ -2621,11 +3545,17 @@ onAuthStateChanged(
           "hidden"
         );
 
-      people = [];
 
-      transactions = [];
+      people =
+        [];
+
+
+      transactions =
+        [];
+
 
       renderEverything();
+
 
       return;
 
@@ -2638,7 +3568,9 @@ onAuthStateChanged(
       );
 
 
-    updateUser(user);
+    updateUserProfile(
+      user
+    );
 
 
     try {
@@ -2650,15 +3582,18 @@ onAuthStateChanged(
       renderEverything();
 
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
 
       console.error(
-        "Cloud data error:",
+        "Cloud loading error:",
         error
       );
 
-      toast(
-        "Could not load your cloud data."
+
+      showToast(
+        "Could not load your cloud records."
       );
 
     }
@@ -2672,7 +3607,9 @@ onAuthStateChanged(
    USER UI
 ========================================================= */
 
-function updateUser(user) {
+function updateUserProfile(
+  user
+) {
 
   const name =
     user.displayName ||
@@ -2686,33 +3623,73 @@ function updateUser(user) {
 
   const photo =
     user.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      name
-    )}&background=2563eb&color=fff`;
+    (
+      "https://ui-avatars.com/api/?name=" +
+      encodeURIComponent(
+        name
+      ) +
+      "&background=2563eb&color=fff"
+    );
 
 
-  $("userName").textContent =
-    name;
+  if (
+    $("sidebarUserName")
+  ) {
+
+    $("sidebarUserName").textContent =
+      name;
+
+  }
 
 
-  $("userEmail").textContent =
-    email;
+  if (
+    $("sidebarUserEmail")
+  ) {
+
+    $("sidebarUserEmail").textContent =
+      email;
+
+  }
 
 
-  $("userPhoto").src =
-    photo;
+  if (
+    $("sidebarUserPhoto")
+  ) {
+
+    $("sidebarUserPhoto").src =
+      photo;
+
+  }
 
 
-  $("settingsName").textContent =
-    name;
+  if (
+    $("settingsName")
+  ) {
+
+    $("settingsName").textContent =
+      name;
+
+  }
 
 
-  $("settingsEmail").textContent =
-    email;
+  if (
+    $("settingsEmail")
+  ) {
+
+    $("settingsEmail").textContent =
+      email;
+
+  }
 
 
-  $("settingsPhoto").src =
-    photo;
+  if (
+    $("settingsPhoto")
+  ) {
+
+    $("settingsPhoto").src =
+      photo;
+
+  }
 
 }
 
@@ -2726,33 +3703,46 @@ async function loadPeople() {
 
   const snapshot =
     await getDocs(
-      peopleRef()
+      peopleCollection()
     );
 
 
   people =
     snapshot.docs.map(
-      d => ({
+      docSnap => ({
 
         id:
-          d.id,
+          docSnap.id,
 
-        ...d.data()
+        ...docSnap.data()
 
       })
     );
 
 
   people.sort(
-    (a, b) =>
-      String(
-        b.createdAt?.seconds ||
-        0
-      ) -
-      String(
-        a.createdAt?.seconds ||
-        0
-      )
+    (a, b) => {
+
+      const aTime =
+        Number(
+          a.createdAt?.seconds ||
+          0
+        );
+
+
+      const bTime =
+        Number(
+          b.createdAt?.seconds ||
+          0
+        );
+
+
+      return (
+        bTime -
+        aTime
+      );
+
+    }
   );
 
 }
@@ -2767,18 +3757,18 @@ async function loadTransactions() {
 
   const snapshot =
     await getDocs(
-      transactionsRef()
+      transactionsCollection()
     );
 
 
   transactions =
     snapshot.docs.map(
-      d => ({
+      docSnap => ({
 
         id:
-          d.id,
+          docSnap.id,
 
-        ...d.data()
+        ...docSnap.data()
 
       })
     );
@@ -2787,11 +3777,21 @@ async function loadTransactions() {
   transactions.sort(
     (a, b) =>
       String(
-        b.date || ""
+        b.date ||
+        ""
       ).localeCompare(
         String(
-          a.date || ""
+          a.date ||
+          ""
         )
+      ) ||
+      Number(
+        b.createdAt?.seconds ||
+        0
+      ) -
+      Number(
+        a.createdAt?.seconds ||
+        0
       )
   );
 
@@ -2803,29 +3803,37 @@ async function loadTransactions() {
    PERSON SUMMARY
 ========================================================= */
 
-function summaryFor(
+function getSummary(
   personId
 ) {
 
   let given =
     0;
 
+
   let received =
     0;
 
 
-  const list =
+  const personTransactions =
     transactions.filter(
-      t =>
-        t.personId ===
+      transaction =>
+        transaction.personId ===
         personId
     );
 
 
   for (
     const transaction
-    of list
+    of personTransactions
   ) {
+
+    const amount =
+      Number(
+        transaction.amount ||
+        0
+      );
+
 
     if (
       transaction.type ===
@@ -2833,10 +3841,7 @@ function summaryFor(
     ) {
 
       given +=
-        Number(
-          transaction.amount ||
-          0
-        );
+        amount;
 
     }
 
@@ -2847,10 +3852,7 @@ function summaryFor(
     ) {
 
       received +=
-        Number(
-          transaction.amount ||
-          0
-        );
+        amount;
 
     }
 
@@ -2868,7 +3870,7 @@ function summaryFor(
       received,
 
     transactions:
-      list
+      personTransactions
 
   };
 
@@ -2877,15 +3879,16 @@ function summaryFor(
 
 
 /* =========================================================
-   DASHBOARD TOTALS
+   DASHBOARD RENDER
 ========================================================= */
 
 function renderDashboard() {
 
-  let given =
+  let totalGiven =
     0;
 
-  let received =
+
+  let totalReceived =
     0;
 
 
@@ -2899,7 +3902,7 @@ function renderDashboard() {
       "given"
     ) {
 
-      given +=
+      totalGiven +=
         Number(
           transaction.amount ||
           0
@@ -2913,7 +3916,7 @@ function renderDashboard() {
       "received"
     ) {
 
-      received +=
+      totalReceived +=
         Number(
           transaction.amount ||
           0
@@ -2925,23 +3928,22 @@ function renderDashboard() {
 
 
   $("totalGiven").textContent =
-    money(
-      given
+    formatINR(
+      totalGiven
     );
 
 
   $("totalReceived").textContent =
-    money(
-      received
+    formatINR(
+      totalReceived
     );
 
 
   $("netBalance").textContent =
-    money(
-      given -
-      received
+    formatINR(
+      totalGiven -
+      totalReceived
     );
-
 
 
   renderDashboardPeople();
@@ -2966,11 +3968,13 @@ function renderDashboardPeople() {
 
 
   const search =
-    $("dashboardSearch")
-      ?.value
+    (
+      $("dashboardSearch")
+        ?.value ||
+      ""
+    )
       .trim()
-      .toLowerCase() ||
-    "";
+      .toLowerCase();
 
 
   const list =
@@ -2989,29 +3993,48 @@ function renderDashboardPeople() {
           person.phone ||
           ""
         )
+          .toLowerCase()
           .includes(
             search
           )
     );
 
 
-  if (!list.length) {
+  if (
+    list.length ===
+    0
+  ) {
 
     box.innerHTML = `
 
-      <div class="p-10 text-center">
+      <div
+        class="p-10
+               text-center"
+      >
 
-        <div class="text-4xl mb-3">
+        <div
+          class="text-4xl
+                 mb-3"
+        >
           👥
         </div>
 
-        <p class="font-bold">
+
+        <p
+          class="font-bold"
+        >
           No accounts yet
         </p>
 
-        <p class="text-sm text-slate-500 mt-1">
-          Add your first person to start.
+
+        <p
+          class="text-sm
+                 text-slate-500
+                 mt-1"
+        >
+          Add your first person to start tracking.
         </p>
+
 
         <button
           id="dashboardAddPerson"
@@ -3054,14 +4077,14 @@ function renderDashboardPeople() {
       .map(
         person => {
 
-          const s =
-            summaryFor(
+          const summary =
+            getSummary(
               person.id
             );
 
 
           const due =
-            s.balance >
+            summary.balance >
             0;
 
 
@@ -3074,12 +4097,12 @@ function renderDashboardPeople() {
                      hover:bg-slate-50
                      dark:hover:bg-slate-800
                      transition"
-              data-person="${person.id}"
-              data-dashboard-person="true"
+              data-dashboard-person="${person.id}"
             >
 
               <div
-                class="flex items-center
+                class="flex
+                       items-center
                        gap-3"
               >
 
@@ -3089,23 +4112,28 @@ function renderDashboardPeople() {
                          bg-primary-100
                          dark:bg-primary-500/20
                          text-primary-700
-                         flex items-center
+                         dark:text-primary-400
+                         flex
+                         items-center
                          justify-center
                          font-bold"
                 >
                   ${escapeHTML(
-                    String(
+                    (
                       person.name ||
                       "U"
                     )
-                      .charAt(0)
+                      .charAt(
+                        0
+                      )
                       .toUpperCase()
                   )}
                 </div>
 
 
                 <div
-                  class="flex-1 min-w-0"
+                  class="flex-1
+                         min-w-0"
                 >
 
                   <p
@@ -3116,6 +4144,7 @@ function renderDashboardPeople() {
                       person.name
                     )}
                   </p>
+
 
                   <p
                     class="text-xs
@@ -3137,10 +4166,11 @@ function renderDashboardPeople() {
                   <p
                     class="font-bold"
                   >
-                    ${money(
-                      s.balance
+                    ${formatINR(
+                      summary.balance
                     )}
                   </p>
+
 
                   <p
                     class="text-[11px]
@@ -3182,7 +4212,7 @@ function renderDashboardPeople() {
           "click",
           () =>
             openPersonDetail(
-              button.dataset.person
+              button.dataset.dashboardPerson
             )
         );
 
@@ -3208,12 +4238,18 @@ function renderPeople() {
   }
 
 
+  let list =
+    [...people];
+
+
   const search =
-    $("peopleSearch")
-      ?.value
+    (
+      $("peopleSearch")
+        ?.value ||
+      ""
+    )
       .trim()
-      .toLowerCase() ||
-    "";
+      .toLowerCase();
 
 
   const status =
@@ -3228,22 +4264,18 @@ function renderPeople() {
     "name";
 
 
-  let list =
-    [...people];
-
-
   list =
     list.filter(
       person => {
 
-        const s =
-          summaryFor(
+        const summary =
+          getSummary(
             person.id
           );
 
 
         const due =
-          s.balance >
+          summary.balance >
           0;
 
 
@@ -3319,10 +4351,10 @@ function renderPeople() {
 
     list.sort(
       (a, b) =>
-        summaryFor(
+        getSummary(
           b.id
         ).balance -
-        summaryFor(
+        getSummary(
           a.id
         ).balance
     );
@@ -3350,32 +4382,52 @@ function renderPeople() {
   }
 
 
-  if (!list.length) {
+  if (
+    list.length ===
+    0
+  ) {
 
     grid.innerHTML = `
 
       <div
         class="md:col-span-2
                xl:col-span-3
-               p-10
-               rounded-2xl
-               bg-white dark:bg-slate-900
-               border border-slate-200
+               bg-white
+               dark:bg-slate-900
+               border
+               border-slate-200
                dark:border-slate-800
+               rounded-2xl
+               p-10
                text-center"
       >
 
-        <div class="text-4xl mb-3">
+        <div
+          class="text-4xl
+                 mb-3"
+        >
           👥
         </div>
 
-        <p class="font-bold">
+        <p
+          class="font-bold"
+        >
           No people found.
+        </p>
+
+
+        <p
+          class="text-sm
+                 text-slate-500
+                 mt-1"
+        >
+          Try changing your search or filters.
         </p>
 
       </div>
 
     `;
+
 
     return;
 
@@ -3387,21 +4439,21 @@ function renderPeople() {
       .map(
         person => {
 
-          const s =
-            summaryFor(
+          const summary =
+            getSummary(
               person.id
             );
 
 
           const due =
-            s.balance >
+            summary.balance >
             0;
 
 
           const whatsapp =
-            createWhatsApp(
+            makeWhatsAppLink(
               person,
-              s.balance
+              summary.balance
             );
 
 
@@ -3418,7 +4470,8 @@ function renderPeople() {
             >
 
               <div
-                class="flex items-center
+                class="flex
+                       items-center
                        gap-3"
               >
 
@@ -3428,32 +4481,39 @@ function renderPeople() {
                          bg-primary-100
                          dark:bg-primary-500/20
                          text-primary-700
-                         flex items-center
+                         flex
+                         items-center
                          justify-center
-                         font-bold text-lg"
+                         font-bold
+                         text-lg"
                 >
                   ${escapeHTML(
-                    String(
+                    (
                       person.name ||
                       "U"
                     )
-                      .charAt(0)
+                      .charAt(
+                        0
+                      )
                       .toUpperCase()
                   )}
                 </div>
 
 
                 <div
-                  class="flex-1 min-w-0"
+                  class="flex-1
+                         min-w-0"
                 >
 
                   <h3
-                    class="font-bold truncate"
+                    class="font-bold
+                           truncate"
                   >
                     ${escapeHTML(
                       person.name
                     )}
                   </h3>
+
 
                   <p
                     class="text-sm
@@ -3470,16 +4530,11 @@ function renderPeople() {
 
 
                 <span
-                  class="px-2.5
-                         py-1
-                         rounded-full
-                         text-[11px]
-                         font-bold
-                         ${
-                           due
-                             ? "bg-red-50 text-red-600 dark:bg-red-500/10"
-                             : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
-                         }"
+                  class="status-pill ${
+                    due
+                      ? "status-due"
+                      : "status-settled"
+                  }"
                 >
                   ${
                     due
@@ -3491,13 +4546,17 @@ function renderPeople() {
               </div>
 
 
+
               <div
-                class="grid grid-cols-3
-                       gap-2 mt-5"
+                class="grid
+                       grid-cols-3
+                       gap-2
+                       mt-5"
               >
 
                 <div
-                  class="p-3 rounded-xl
+                  class="p-3
+                         rounded-xl
                          bg-red-50
                          dark:bg-red-500/10"
                 >
@@ -3509,12 +4568,14 @@ function renderPeople() {
                     Given
                   </p>
 
+
                   <p
                     class="text-sm
-                           font-bold mt-1"
+                           font-bold
+                           mt-1"
                   >
-                    ${money(
-                      s.given
+                    ${formatINR(
+                      summary.given
                     )}
                   </p>
 
@@ -3522,7 +4583,8 @@ function renderPeople() {
 
 
                 <div
-                  class="p-3 rounded-xl
+                  class="p-3
+                         rounded-xl
                          bg-emerald-50
                          dark:bg-emerald-500/10"
                 >
@@ -3534,12 +4596,14 @@ function renderPeople() {
                     Received
                   </p>
 
+
                   <p
                     class="text-sm
-                           font-bold mt-1"
+                           font-bold
+                           mt-1"
                   >
-                    ${money(
-                      s.received
+                    ${formatINR(
+                      summary.received
                     )}
                   </p>
 
@@ -3547,7 +4611,8 @@ function renderPeople() {
 
 
                 <div
-                  class="p-3 rounded-xl
+                  class="p-3
+                         rounded-xl
                          bg-blue-50
                          dark:bg-blue-500/10"
                 >
@@ -3559,12 +4624,14 @@ function renderPeople() {
                     Balance
                   </p>
 
+
                   <p
                     class="text-sm
-                           font-bold mt-1"
+                           font-bold
+                           mt-1"
                   >
-                    ${money(
-                      s.balance
+                    ${formatINR(
+                      summary.balance
                     )}
                   </p>
 
@@ -3573,8 +4640,11 @@ function renderPeople() {
               </div>
 
 
+
               <div
-                class="flex gap-2 mt-5"
+                class="flex
+                       gap-2
+                       mt-5"
               >
 
                 <button
@@ -3586,7 +4656,7 @@ function renderPeople() {
                          text-white
                          text-sm
                          font-semibold"
-                  data-id="${person.id}"
+                  data-person-id="${person.id}"
                 >
                   View Ledger
                 </button>
@@ -3636,7 +4706,7 @@ function renderPeople() {
           "click",
           () =>
             openPersonDetail(
-              button.dataset.id
+              button.dataset.personId
             )
         );
 
@@ -3648,7 +4718,7 @@ function renderPeople() {
 
 
 /* =========================================================
-   TRANSACTIONS
+   TRANSACTIONS PAGE
 ========================================================= */
 
 function renderTransactions() {
@@ -3663,11 +4733,13 @@ function renderTransactions() {
 
 
   const search =
-    $("transactionSearch")
-      ?.value
+    (
+      $("transactionSearch")
+        ?.value ||
+      ""
+    )
       .trim()
-      .toLowerCase() ||
-    "";
+      .toLowerCase();
 
 
   const list =
@@ -3696,7 +4768,10 @@ function renderTransactions() {
     );
 
 
-  if (!list.length) {
+  if (
+    list.length ===
+    0
+  ) {
 
     box.innerHTML = `
 
@@ -3709,6 +4784,7 @@ function renderTransactions() {
       </div>
 
     `;
+
 
     return;
 
@@ -3732,7 +4808,8 @@ function renderTransactions() {
             >
 
               <div
-                class="flex items-start
+                class="flex
+                       items-start
                        gap-3"
               >
 
@@ -3744,7 +4821,8 @@ function renderTransactions() {
                              ? "bg-red-50 text-red-600 dark:bg-red-500/10"
                              : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
                          }
-                         flex items-center
+                         flex
+                         items-center
                          justify-center"
                 >
                   ${
@@ -3756,11 +4834,13 @@ function renderTransactions() {
 
 
                 <div
-                  class="flex-1 min-w-0"
+                  class="flex-1
+                         min-w-0"
                 >
 
                   <div
-                    class="flex justify-between
+                    class="flex
+                           justify-between
                            gap-3"
                   >
 
@@ -3773,6 +4853,7 @@ function renderTransactions() {
                           transaction.personName
                         )}
                       </p>
+
 
                       <p
                         class="text-xs
@@ -3797,13 +4878,14 @@ function renderTransactions() {
                                  : "text-emerald-600"
                              }"
                     >
+
                       ${
                         given
                           ? "+"
                           : "-"
                       }
 
-                      ${money(
+                      ${formatINR(
                         transaction.amount
                       )}
 
@@ -3845,18 +4927,33 @@ function renderTransactions() {
 
 
 /* =========================================================
-   SELECT LISTS
+   REPORT SELECT
 ========================================================= */
 
-function renderSelects() {
+function renderReportSelect() {
 
-  const html =
-    `<option value="">Select person</option>` +
+  const select =
+    $("reportPerson");
+
+
+  if (!select) {
+    return;
+  }
+
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select person
+      </option>
+    ` +
     people
       .map(
         person =>
           `
-            <option value="${person.id}">
+            <option
+              value="${person.id}"
+            >
               ${escapeHTML(
                 person.name
               )}
@@ -3864,14 +4961,6 @@ function renderSelects() {
           `
       )
       .join("");
-
-
-  $("transactionPerson").innerHTML =
-    html;
-
-
-  $("reportPerson").innerHTML =
-    html;
 
 }
 
@@ -3881,7 +4970,7 @@ function renderSelects() {
    WHATSAPP
 ========================================================= */
 
-function createWhatsApp(
+function makeWhatsAppLink(
   person,
   balance
 ) {
@@ -3914,7 +5003,7 @@ function createWhatsApp(
 
 This is a reminder regarding your Transaction Paper ledger.
 
-Outstanding balance: ${money(balance)}
+Outstanding balance: ${formatINR(balance)}
 
 Please review the account and settle the outstanding amount.
 
@@ -3944,8 +5033,8 @@ function openPersonDetail(
 
   const person =
     people.find(
-      p =>
-        p.id ===
+      item =>
+        item.id ===
         personId
     );
 
@@ -3955,8 +5044,8 @@ function openPersonDetail(
   }
 
 
-  const s =
-    summaryFor(
+  const summary =
+    getSummary(
       personId
     );
 
@@ -3966,7 +5055,9 @@ function openPersonDetail(
       person.name ||
       "U"
     )
-      .charAt(0)
+      .charAt(
+        0
+      )
       .toUpperCase();
 
 
@@ -3981,24 +5072,24 @@ function openPersonDetail(
 
 
   $("detailGiven").textContent =
-    money(
-      s.given
+    formatINR(
+      summary.given
     );
 
 
   $("detailReceived").textContent =
-    money(
-      s.received
+    formatINR(
+      summary.received
     );
 
 
   $("detailBalance").textContent =
-    money(
-      s.balance
+    formatINR(
+      summary.balance
     );
 
 
-  const wa =
+  const whatsapp =
     $("whatsappReminder");
 
 
@@ -4006,19 +5097,20 @@ function openPersonDetail(
     person.phone
   ) {
 
-    wa.href =
-      createWhatsApp(
+    whatsapp.href =
+      makeWhatsAppLink(
         person,
-        s.balance
+        summary.balance
       );
 
-    wa.classList.remove(
+
+    whatsapp.classList.remove(
       "hidden"
     );
 
   } else {
 
-    wa.classList.add(
+    whatsapp.classList.add(
       "hidden"
     );
 
@@ -4026,7 +5118,7 @@ function openPersonDetail(
 
 
   renderTimeline(
-    s.transactions
+    summary.transactions
   );
 
 
@@ -4050,12 +5142,23 @@ function renderTimeline(
     $("detailTimeline");
 
 
-  if (!list.length) {
+  if (!box) {
+    return;
+  }
+
+
+  if (
+    list.length ===
+    0
+  ) {
 
     box.innerHTML = `
 
       <div
         class="p-8
+               rounded-xl
+               bg-slate-50
+               dark:bg-slate-800
                text-center
                text-slate-500"
       >
@@ -4063,6 +5166,7 @@ function renderTimeline(
       </div>
 
     `;
+
 
     return;
 
@@ -4097,7 +5201,8 @@ function renderTimeline(
           return `
 
             <div
-              class="relative pl-8"
+              class="relative
+                     pl-8"
             >
 
               <div
@@ -4139,6 +5244,7 @@ function renderTimeline(
                       }
                     </p>
 
+
                     <p
                       class="text-xs
                              text-slate-500
@@ -4161,7 +5267,7 @@ function renderTimeline(
                                : "text-emerald-600"
                            }"
                   >
-                    ${money(
+                    ${formatINR(
                       transaction.amount
                     )}
                   </p>
@@ -4213,7 +5319,7 @@ $("personForm")
 
       if (!currentUser) {
 
-        toast(
+        showToast(
           "Please sign in first."
         );
 
@@ -4242,7 +5348,7 @@ $("personForm")
 
       if (!name) {
 
-        toast(
+        showToast(
           "Please enter the person's name."
         );
 
@@ -4251,10 +5357,27 @@ $("personForm")
       }
 
 
+      const saveButton =
+        $("savePersonBtn");
+
+
+      if (
+        saveButton
+      ) {
+
+        saveButton.disabled =
+          true;
+
+        saveButton.textContent =
+          "Saving...";
+
+      }
+
+
       try {
 
         await addDoc(
-          peopleRef(),
+          peopleCollection(),
           {
 
             ownerUid:
@@ -4281,27 +5404,44 @@ $("personForm")
         );
 
 
-        toast(
+        showToast(
           "Person saved successfully."
         );
 
 
         await loadPeople();
 
+
         renderEverything();
 
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
 
         console.error(
-          "Add person failed:",
+          "Add person error:",
           error
         );
 
 
-        toast(
+        showToast(
           "Could not save person."
         );
+
+      } finally {
+
+        if (
+          saveButton
+        ) {
+
+          saveButton.disabled =
+            false;
+
+          saveButton.textContent =
+            "Save Person";
+
+        }
 
       }
 
@@ -4324,7 +5464,7 @@ $("transactionForm")
 
       if (!currentUser) {
 
-        toast(
+        showToast(
           "Please sign in first."
         );
 
@@ -4367,7 +5507,7 @@ $("transactionForm")
 
       if (!personId) {
 
-        toast(
+        showToast(
           "Please select a person."
         );
 
@@ -4384,8 +5524,8 @@ $("transactionForm")
         0
       ) {
 
-        toast(
-          "Enter a valid amount."
+        showToast(
+          "Please enter a valid amount."
         );
 
         return;
@@ -4395,7 +5535,7 @@ $("transactionForm")
 
       if (!date) {
 
-        toast(
+        showToast(
           "Please select a date."
         );
 
@@ -4406,16 +5546,33 @@ $("transactionForm")
 
       const person =
         people.find(
-          p =>
-            p.id ===
+          item =>
+            item.id ===
             personId
         );
+
+
+      const saveButton =
+        $("saveTransactionBtn");
+
+
+      if (
+        saveButton
+      ) {
+
+        saveButton.disabled =
+          true;
+
+        saveButton.textContent =
+          "Saving...";
+
+      }
 
 
       try {
 
         await addDoc(
-          transactionsRef(),
+          transactionsCollection(),
           {
 
             ownerUid:
@@ -4445,9 +5602,8 @@ $("transactionForm")
         event.target.reset();
 
 
-        $("transactionDate")
-          .value =
-          today();
+        $("transactionDate").value =
+          todayISO();
 
 
         closeModal(
@@ -4455,27 +5611,44 @@ $("transactionForm")
         );
 
 
-        toast(
+        showToast(
           "Transaction saved successfully."
         );
 
 
         await loadTransactions();
 
+
         renderEverything();
 
 
-      } catch (error) {
+      } catch (
+        error
+      ) {
 
         console.error(
-          "Add transaction failed:",
+          "Add transaction error:",
           error
         );
 
 
-        toast(
+        showToast(
           "Could not save transaction."
         );
+
+      } finally {
+
+        if (
+          saveButton
+        ) {
+
+          saveButton.disabled =
+            false;
+
+          saveButton.textContent =
+            "Save Transaction";
+
+        }
 
       }
 
@@ -4485,19 +5658,14 @@ $("transactionForm")
 
 
 /* =========================================================
-   PDF GENERATOR
+   PROFESSIONAL PDF
 ========================================================= */
 
-async function generatePDF(
+function generatePDF(
   personId = null
 ) {
 
   try {
-
-    toast(
-      "Preparing PDF..."
-    );
-
 
     if (
       !window.jspdf ||
@@ -4505,10 +5673,15 @@ async function generatePDF(
     ) {
 
       throw new Error(
-        "PDF library not loaded."
+        "jsPDF library unavailable."
       );
 
     }
+
+
+    showToast(
+      "Preparing professional statement..."
+    );
 
 
     const {
@@ -4518,7 +5691,18 @@ async function generatePDF(
 
 
     const pdf =
-      new jsPDF();
+      new jsPDF(
+        {
+          orientation:
+            "portrait",
+
+          unit:
+            "mm",
+
+          format:
+            "a4"
+        }
+      );
 
 
     const person =
@@ -4541,62 +5725,163 @@ async function generatePDF(
         : [...transactions];
 
 
-    let given =
+    list.sort(
+      (a, b) =>
+        String(
+          a.date ||
+          ""
+        ).localeCompare(
+          String(
+            b.date ||
+            ""
+          )
+        ) ||
+        Number(
+          a.createdAt?.seconds ||
+          0
+        ) -
+        Number(
+          b.createdAt?.seconds ||
+          0
+        )
+    );
+
+
+    let totalGiven =
       0;
 
-    let received =
+
+    let totalReceived =
       0;
 
 
-    for (
-      const transaction
-      of list
-    ) {
+    list.forEach(
+      transaction => {
 
-      if (
-        transaction.type ===
-        "given"
-      ) {
-
-        given +=
+        const amount =
           Number(
             transaction.amount ||
             0
           );
 
+
+        if (
+          transaction.type ===
+          "given"
+        ) {
+
+          totalGiven +=
+            amount;
+
+        }
+
+
+        if (
+          transaction.type ===
+          "received"
+        ) {
+
+          totalReceived +=
+            amount;
+
+        }
+
       }
+    );
 
 
-      if (
-        transaction.type ===
-        "received"
-      ) {
-
-        received +=
-          Number(
-            transaction.amount ||
-            0
-          );
-
-      }
-
-    }
+    const closingBalance =
+      totalGiven -
+      totalReceived;
 
 
-    /* Header */
+    const statementStatus =
+      closingBalance >
+      0
+        ? "AMOUNT DUE"
+        : closingBalance <
+          0
+          ? "CREDIT BALANCE"
+          : "SETTLED";
+
+
+    const generatedDate =
+      new Date();
+
+
+    const dd =
+      String(
+        generatedDate.getDate()
+      )
+        .padStart(
+          2,
+          "0"
+        );
+
+
+    const mm =
+      String(
+        generatedDate.getMonth() +
+        1
+      )
+        .padStart(
+          2,
+          "0"
+        );
+
+
+    const yyyy =
+      generatedDate.getFullYear();
+
+
+    const formattedGeneratedDate =
+      `${dd}-${mm}-${yyyy}`;
+
+
+    const statementNumber =
+      `TP-${yyyy}${mm}${dd}-${String(
+        generatedDate.getHours()
+      ).padStart(2, "0")}${String(
+        generatedDate.getMinutes()
+      ).padStart(2, "0")}`;
+
+
+    const pageWidth =
+      210;
+
+
+    const pageHeight =
+      297;
+
+
+    const left =
+      15;
+
+
+    const right =
+      195;
+
+
+    let y =
+      0;
+
+
+    /* =======================================================
+       HEADER
+    ======================================================== */
 
     pdf.setFillColor(
-      37,
-      99,
-      235
+      24,
+      55,
+      110
     );
 
 
     pdf.rect(
       0,
       0,
-      210,
-      32,
+      pageWidth,
+      35,
       "F"
     );
 
@@ -4615,14 +5900,14 @@ async function generatePDF(
 
 
     pdf.setFontSize(
-      20
+      19
     );
 
 
     pdf.text(
-      "Transaction Paper",
-      20,
-      20
+      "TRANSACTION PAPER",
+      left,
+      17
     );
 
 
@@ -4633,14 +5918,41 @@ async function generatePDF(
 
 
     pdf.setFontSize(
-      9
+      8
     );
 
 
     pdf.text(
-      "Personal Financial Ledger",
-      20,
-      27
+      "PERSONAL FINANCIAL LEDGER",
+      left,
+      24
+    );
+
+
+    pdf.setFontSize(
+      7.5
+    );
+
+
+    pdf.text(
+      "STATEMENT OF ACCOUNT",
+      right,
+      15,
+      {
+        align:
+          "right"
+      }
+    );
+
+
+    pdf.text(
+      `Statement No: ${statementNumber}`,
+      right,
+      22,
+      {
+        align:
+          "right"
+      }
     );
 
 
@@ -4651,9 +5963,13 @@ async function generatePDF(
     );
 
 
-    let y =
-      45;
+    y =
+      46;
 
+
+    /* =======================================================
+       ACCOUNT INFORMATION
+    ======================================================== */
 
     pdf.setFont(
       "helvetica",
@@ -4662,21 +5978,21 @@ async function generatePDF(
 
 
     pdf.setFontSize(
-      14
+      11
     );
 
 
     pdf.text(
       person
-        ? `${person.name} - Account Statement`
-        : "Full Ledger Statement",
-      20,
+        ? "ACCOUNT DETAILS"
+        : "STATEMENT DETAILS",
+      left,
       y
     );
 
 
     y +=
-      12;
+      7;
 
 
     pdf.setFont(
@@ -4686,44 +6002,184 @@ async function generatePDF(
 
 
     pdf.setFontSize(
-      10
+      8.5
+    );
+
+
+    if (
+      person
+    ) {
+
+      pdf.text(
+        "Account Holder:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        String(
+          person.name ||
+          ""
+        ).slice(
+          0,
+          30
+        ),
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Mobile:",
+        left,
+        y
+      );
+
+
+      pdf.text(
+        String(
+          person.phone ||
+          "Not provided"
+        ),
+        48,
+        y
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Status:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        statementStatus,
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+    } else {
+
+      pdf.text(
+        "Account:",
+        left,
+        y
+      );
+
+
+      pdf.text(
+        "All Accounts",
+        48,
+        y
+      );
+
+
+      y +=
+        6;
+
+
+      pdf.text(
+        "Status:",
+        left,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        statementStatus,
+        48,
+        y
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+    }
+
+
+    /* Right information */
+
+    pdf.text(
+      "Statement Date:",
+      112,
+      53
     );
 
 
     pdf.text(
-      `Total Given: INR ${given.toFixed(2)}`,
-      20,
-      y
+      formattedGeneratedDate,
+      150,
+      53
     );
-
-
-    y +=
-      7;
 
 
     pdf.text(
-      `Total Received: INR ${received.toFixed(2)}`,
-      20,
-      y
+      "Currency:",
+      112,
+      60
     );
-
-
-    y +=
-      7;
 
 
     pdf.text(
-      `Outstanding Balance: INR ${(given - received).toFixed(2)}`,
-      20,
-      y
+      "Indian Rupee (INR)",
+      150,
+      60
     );
 
 
-    y +=
-      14;
+    /* =======================================================
+       SUMMARY
+    ======================================================== */
 
+    y =
+      Math.max(
+        y + 14,
+        83
+      );
 
-    /* Table header */
 
     pdf.setFont(
       "helvetica",
@@ -4731,213 +6187,857 @@ async function generatePDF(
     );
 
 
-    pdf.text(
-      "Date",
-      20,
-      y
+    pdf.setFontSize(
+      10.5
     );
 
 
     pdf.text(
-      "Person",
-      52,
-      y
-    );
-
-
-    pdf.text(
-      "Type",
-      112,
-      y
-    );
-
-
-    pdf.text(
-      "Amount",
-      145,
+      "ACCOUNT SUMMARY",
+      left,
       y
     );
 
 
     y +=
-      3;
+      5;
 
 
-    pdf.setDrawColor(
-      180,
-      180,
-      180
+    const cardY =
+      y;
+
+
+    const cardWidth =
+      56;
+
+
+    const cardHeight =
+      25;
+
+
+    const cards = [
+
+      {
+        x:
+          15,
+
+        label:
+          "TOTAL GIVEN",
+
+        value:
+          pdfINR(
+            totalGiven
+          )
+      },
+
+
+      {
+        x:
+          77,
+
+        label:
+          "TOTAL RECEIVED",
+
+        value:
+          pdfINR(
+            totalReceived
+          )
+      },
+
+
+      {
+        x:
+          139,
+
+        label:
+          "OUTSTANDING",
+
+        value:
+          pdfINR(
+            closingBalance
+          )
+      }
+
+    ];
+
+
+    cards.forEach(
+      card => {
+
+        pdf.setFillColor(
+          248,
+          250,
+          252
+        );
+
+
+        pdf.setDrawColor(
+          215,
+          220,
+          228
+        );
+
+
+        pdf.roundedRect(
+          card.x,
+          cardY,
+          cardWidth,
+          cardHeight,
+          2.5,
+          2.5,
+          "FD"
+        );
+
+
+        pdf.setFont(
+          "helvetica",
+          "normal"
+        );
+
+
+        pdf.setTextColor(
+          90,
+          96,
+          106
+        );
+
+
+        pdf.setFontSize(
+          6.8
+        );
+
+
+        pdf.text(
+          card.label,
+          card.x + 4,
+          cardY + 7
+        );
+
+
+        pdf.setFont(
+          "helvetica",
+          "bold"
+        );
+
+
+        pdf.setTextColor(
+          20,
+          30,
+          45
+        );
+
+
+        pdf.setFontSize(
+          9.2
+        );
+
+
+        pdf.text(
+          card.value,
+          card.x + 4,
+          cardY + 17
+        );
+
+      }
     );
 
 
-    pdf.line(
-      20,
-      y,
-      190,
-      y
+    pdf.setTextColor(
+      0,
+      0,
+      0
     );
 
 
-    y +=
-      7;
+    y =
+      cardY +
+      cardHeight +
+      14;
 
 
-    pdf.setFont(
-      "helvetica",
-      "normal"
-    );
+    /* =======================================================
+       TABLE HEADER
+    ======================================================== */
+
+    function drawTableHeader(
+      startY
+    ) {
+
+      pdf.setFillColor(
+        24,
+        55,
+        110
+      );
+
+
+      pdf.rect(
+        left,
+        startY,
+        180,
+        10,
+        "F"
+      );
+
+
+      pdf.setTextColor(
+        255,
+        255,
+        255
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.setFontSize(
+        7.2
+      );
+
+
+      pdf.text(
+        "DATE",
+        18,
+        startY + 6.5
+      );
+
+
+      pdf.text(
+        "DESCRIPTION",
+        43,
+        startY + 6.5
+      );
+
+
+      pdf.text(
+        "DEBIT",
+        109,
+        startY + 6.5
+      );
+
+
+      pdf.text(
+        "CREDIT",
+        137,
+        startY + 6.5
+      );
+
+
+      pdf.text(
+        "BALANCE",
+        168,
+        startY + 6.5
+      );
+
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+
+      return (
+        startY +
+        10
+      );
+
+    }
+
+
+    y =
+      drawTableHeader(
+        y
+      );
+
+
+    /* =======================================================
+       RUNNING BALANCE
+    ======================================================== */
+
+    let runningBalance =
+      0;
 
 
     for (
-      const transaction
-      of list
+      let index =
+        0;
+
+      index <
+        list.length;
+
+      index++
     ) {
+
+      const transaction =
+        list[index];
+
+
+      const amount =
+        Number(
+          transaction.amount ||
+          0
+        );
+
+
+      const isGiven =
+        transaction.type ===
+        "given";
+
+
+      if (
+        isGiven
+      ) {
+
+        runningBalance +=
+          amount;
+
+      } else {
+
+        runningBalance -=
+          amount;
+
+      }
+
 
       if (
         y >
-        270
+        267
       ) {
 
         pdf.addPage();
 
+
         y =
           20;
 
+
+        y =
+          drawTableHeader(
+            y
+          );
+
       }
+
+
+      if (
+        index %
+        2 ===
+        0
+      ) {
+
+        pdf.setFillColor(
+          248,
+          250,
+          252
+        );
+
+
+        pdf.rect(
+          left,
+          y,
+          180,
+          10,
+          "F"
+        );
+
+      }
+
+
+      pdf.setDrawColor(
+        225,
+        228,
+        235
+      );
+
+
+      pdf.line(
+        left,
+        y + 10,
+        right,
+        y + 10
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setFontSize(
+        7.1
+      );
 
 
       const date =
         String(
           transaction.date ||
           ""
-        )
-          .slice(
-            0,
-            10
-          );
+        );
 
 
-      const name =
+      let description =
+        transaction.note ||
+        (
+          isGiven
+            ? "Money Given"
+            : "Money Received"
+        );
+
+
+      description =
         String(
-          transaction.personName ||
-          ""
+          description
         )
+          .replace(
+            /[\r\n]+/g,
+            " "
+          )
           .slice(
             0,
-            22
+            34
           );
-
-
-      const type =
-        transaction.type ===
-        "given"
-          ? "Given"
-          : "Received";
-
-
-      const amount =
-        `INR ${Number(
-          transaction.amount ||
-          0
-        ).toFixed(2)}`;
 
 
       pdf.text(
         date,
-        20,
-        y
+        18,
+        y + 6.5
       );
 
 
       pdf.text(
-        name,
-        52,
-        y
+        description,
+        43,
+        y + 6.5
       );
 
 
       pdf.text(
-        type,
-        112,
-        y
+        isGiven
+          ? pdfINR(
+              amount
+            )
+          : "-",
+        109,
+        y + 6.5
       );
 
 
       pdf.text(
-        amount,
-        145,
-        y
+        !isGiven
+          ? pdfINR(
+              amount
+            )
+          : "-",
+        137,
+        y + 6.5
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.text(
+        pdfINR(
+          runningBalance
+        ),
+        168,
+        y + 6.5
       );
 
 
       y +=
-        7;
-
-
-      if (
-        transaction.note
-      ) {
-
-        const note =
-          `Note: ${String(
-            transaction.note
-          ).slice(
-            0,
-            65
-          )}`;
-
-
-        pdf.setFontSize(
-          8
-        );
-
-
-        pdf.setTextColor(
-          100,
-          100,
-          100
-        );
-
-
-        pdf.text(
-          note,
-          52,
-          y
-        );
-
-
-        pdf.setTextColor(
-          0,
-          0,
-          0
-        );
-
-
-        pdf.setFontSize(
-          10
-        );
-
-
-        y +=
-          6;
-
-      }
+        10;
 
     }
 
 
+    if (
+      list.length ===
+      0
+    ) {
+
+      pdf.setFillColor(
+        250,
+        250,
+        250
+      );
+
+
+      pdf.rect(
+        left,
+        y,
+        180,
+        20,
+        "F"
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setTextColor(
+        105,
+        110,
+        120
+      );
+
+
+      pdf.setFontSize(
+        8
+      );
+
+
+      pdf.text(
+        "No transactions recorded.",
+        105,
+        y + 12,
+        {
+          align:
+            "center"
+        }
+      );
+
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+
+      y +=
+        20;
+
+    }
+
+
+    /* =======================================================
+       CLOSING BALANCE
+    ======================================================== */
+
+    if (
+      y >
+      243
+    ) {
+
+      pdf.addPage();
+
+
+      y =
+        25;
+
+    } else {
+
+      y +=
+        8;
+
+    }
+
+
+    pdf.setFillColor(
+      24,
+      55,
+      110
+    );
+
+
+    pdf.roundedRect(
+      115,
+      y,
+      80,
+      28,
+      3,
+      3,
+      "F"
+    );
+
+
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    );
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      7.5
+    );
+
+
+    pdf.text(
+      "CLOSING BALANCE",
+      120,
+      y + 8
+    );
+
+
+    pdf.setFontSize(
+      11.5
+    );
+
+
+    pdf.text(
+      pdfINR(
+        closingBalance
+      ),
+      120,
+      y + 18
+    );
+
+
+    pdf.setFontSize(
+      7
+    );
+
+
+    pdf.text(
+      statementStatus,
+      190,
+      y + 23,
+      {
+        align:
+          "right"
+      }
+    );
+
+
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    );
+
+
+    /* =======================================================
+       NOTES
+    ======================================================== */
+
+    y +=
+      37;
+
+
+    if (
+      y >
+      255
+    ) {
+
+      pdf.addPage();
+
+
+      y =
+        25;
+
+    }
+
+
+    pdf.setFont(
+      "helvetica",
+      "bold"
+    );
+
+
+    pdf.setFontSize(
+      8.5
+    );
+
+
+    pdf.text(
+      "STATEMENT NOTES",
+      left,
+      y
+    );
+
+
+    y +=
+      6;
+
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+
+    pdf.setFontSize(
+      7.3
+    );
+
+
+    const notes = [
+
+      "This statement is generated electronically by Transaction Paper.",
+
+      "Running balance = Total Given minus Total Received.",
+
+      "Please verify transaction details before financial reconciliation."
+
+    ];
+
+
+    notes.forEach(
+      note => {
+
+        if (
+          y >
+          270
+        ) {
+
+          pdf.addPage();
+
+
+          y =
+            25;
+
+        }
+
+
+        pdf.text(
+          "• " +
+          note,
+          left,
+          y
+        );
+
+
+        y +=
+          5;
+
+      }
+    );
+
+
+    /* =======================================================
+       FOOTERS FOR ALL PAGES
+    ======================================================== */
+
+    const totalPages =
+      pdf
+        .internal
+        .getNumberOfPages();
+
+
+    for (
+      let page =
+        1;
+
+      page <=
+        totalPages;
+
+      page++
+    ) {
+
+      pdf.setPage(
+        page
+      );
+
+
+      pdf.setDrawColor(
+        210,
+        214,
+        222
+      );
+
+
+      pdf.line(
+        15,
+        pageHeight - 17,
+        195,
+        pageHeight - 17
+      );
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setFontSize(
+        6.8
+      );
+
+
+      pdf.setTextColor(
+        105,
+        110,
+        120
+      );
+
+
+      pdf.text(
+        "Generated electronically by Transaction Paper",
+        15,
+        pageHeight - 10
+      );
+
+
+      pdf.text(
+        "Created by Upen Gowala",
+        15,
+        pageHeight - 6
+      );
+
+
+      pdf.text(
+        `Page ${page} of ${totalPages}`,
+        195,
+        pageHeight - 8,
+        {
+          align:
+            "right"
+        }
+      );
+
+
+      pdf.setTextColor(
+        0,
+        0,
+        0
+      );
+
+    }
+
+
+    /* =======================================================
+       SAVE
+    ======================================================== */
+
+    const cleanName =
+      String(
+        person?.name ||
+        "full-ledger"
+      )
+        .replace(
+          /[^a-z0-9]+/gi,
+          "-"
+        )
+        .replace(
+          /^-+|-+$/g,
+          ""
+        )
+        .toLowerCase() ||
+      "statement";
+
+
     const filename =
-      person
-        ? `transaction-paper-${String(
-            person.name ||
-            "account"
-          )
-            .replace(
-              /[^a-z0-9]+/gi,
-              "-"
-            )
-            .toLowerCase()}.pdf`
-        : "transaction-paper-full-statement.pdf";
+      `transaction-paper-${cleanName}-statement.pdf`;
 
 
     pdf.save(
@@ -4945,12 +7045,14 @@ async function generatePDF(
     );
 
 
-    toast(
-      "PDF downloaded successfully."
+    showToast(
+      "Professional PDF downloaded successfully."
     );
 
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
 
     console.error(
       "PDF generation error:",
@@ -4958,7 +7060,7 @@ async function generatePDF(
     );
 
 
-    toast(
+    showToast(
       "PDF could not be generated."
     );
 
@@ -4967,6 +7069,10 @@ async function generatePDF(
 }
 
 
+
+/* =========================================================
+   PDF BUTTONS
+========================================================= */
 
 $("fullPdfBtn")
   ?.addEventListener(
@@ -4981,14 +7087,14 @@ $("personPdfBtn")
     "click",
     () => {
 
-      const id =
+      const personId =
         $("reportPerson")
           .value;
 
 
-      if (!id) {
+      if (!personId) {
 
-        toast(
+        showToast(
           "Please select a person."
         );
 
@@ -4998,7 +7104,7 @@ $("personPdfBtn")
 
 
       generatePDF(
-        id
+        personId
       );
 
     }
@@ -5007,7 +7113,7 @@ $("personPdfBtn")
 
 
 /* =========================================================
-   SEARCH / FILTER
+   SEARCH
 ========================================================= */
 
 $("dashboardSearch")
@@ -5047,20 +7153,10 @@ $("transactionSearch")
 
 
 /* =========================================================
-   BUTTONS
+   OPEN BUTTONS
 ========================================================= */
 
-$("pageAddPerson")
-  ?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "personModal"
-      )
-  );
-
-
-$("topAddTransaction")
+$("desktopAddTransaction")
   ?.addEventListener(
     "click",
     () =>
@@ -5080,6 +7176,16 @@ $("mobileAddTransaction")
   );
 
 
+$("addPersonPageBtn")
+  ?.addEventListener(
+    "click",
+    () =>
+      openModal(
+        "personModal"
+      )
+  );
+
+
 document
   .querySelectorAll(
     ".quick-action"
@@ -5087,33 +7193,12 @@ document
   .forEach(
     button => {
 
-      button.classList.add(
-        "flex",
-        "flex-col",
-        "items-center",
-        "justify-center",
-        "gap-2",
-        "p-4",
-        "rounded-2xl",
-        "border",
-        "border-slate-200",
-        "dark:border-slate-800",
-        "bg-white",
-        "dark:bg-slate-900",
-        "hover:bg-slate-50",
-        "dark:hover:bg-slate-800",
-        "transition",
-        "text-sm",
-        "font-semibold"
-      );
-
-
       button.addEventListener(
         "click",
         () => {
 
           const action =
-            button.dataset.action;
+            button.dataset.quick;
 
 
           if (
@@ -5138,12 +7223,18 @@ document
             );
 
 
-            document
-              .querySelector(
+            const radio =
+              document.querySelector(
                 'input[name="transactionType"][value="given"]'
-              )
-              .checked =
-              true;
+              );
+
+
+            if (radio) {
+
+              radio.checked =
+                true;
+
+            }
 
           }
 
@@ -5158,12 +7249,18 @@ document
             );
 
 
-            document
-              .querySelector(
+            const radio =
+              document.querySelector(
                 'input[name="transactionType"][value="received"]'
-              )
-              .checked =
-              true;
+              );
+
+
+            if (radio) {
+
+              radio.checked =
+                true;
+
+            }
 
           }
 
@@ -5186,6 +7283,10 @@ document
   );
 
 
+
+/* =========================================================
+   CLOSE MODALS
+========================================================= */
 
 $("closePersonModal")
   ?.addEventListener(
@@ -5215,7 +7316,6 @@ $("closeDetailModal")
         "personDetailModal"
       )
   );
-
 
 
 [
@@ -5249,6 +7349,42 @@ $("closeDetailModal")
   );
 
 
+document
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key !==
+        "Escape"
+      ) {
+
+        return;
+
+      }
+
+
+      closeModal(
+        "personModal"
+      );
+
+
+      closeModal(
+        "transactionModal"
+      );
+
+
+      closeModal(
+        "personDetailModal"
+      );
+
+
+      closeSidebar();
+
+    }
+  );
+
+
 
 /* =========================================================
    PWA INSTALL
@@ -5259,6 +7395,7 @@ window.addEventListener(
   event => {
 
     event.preventDefault();
+
 
     deferredInstallPrompt =
       event;
@@ -5282,7 +7419,7 @@ $("installAppBtn")
         !deferredInstallPrompt
       ) {
 
-        toast(
+        showToast(
           "Install option is not available yet."
         );
 
@@ -5291,12 +7428,22 @@ $("installAppBtn")
       }
 
 
-      deferredInstallPrompt
-        .prompt();
+      deferredInstallPrompt.prompt();
 
 
-      await deferredInstallPrompt
-        .userChoice;
+      try {
+
+        await deferredInstallPrompt.userChoice;
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          error
+        );
+
+      }
 
 
       deferredInstallPrompt =
@@ -5318,8 +7465,7 @@ $("installAppBtn")
 ========================================================= */
 
 if (
-  "serviceWorker"
-  in navigator
+  "serviceWorker" in navigator
 ) {
 
   window.addEventListener(
@@ -5346,7 +7492,7 @@ if (
 
 
 /* =========================================================
-   UPDATE EVERYTHING
+   RENDER EVERYTHING
 ========================================================= */
 
 function renderEverything() {
@@ -5357,93 +7503,24 @@ function renderEverything() {
 
   renderTransactions();
 
-  renderSelects();
+  renderReportSelect();
 
 }
 
 
-</script>
+/* =========================================================
+   INITIAL RENDER
+========================================================= */
+
+renderEverything();
 
 
-<!-- =========================================================
-     BASIC NAV STYLE SCRIPT
-========================================================= -->
+console.log(
+  "Transaction Paper — Final version initialized."
+);
 
-<script>
-
-  document
-    .querySelectorAll(
-      ".nav-item"
-    )
-    .forEach(
-      button => {
-
-        button.style.display =
-          "flex";
-
-        button.style.alignItems =
-          "center";
-
-        button.style.gap =
-          "12px";
-
-        button.style.width =
-          "100%";
-
-        button.style.padding =
-          "12px 16px";
-
-        button.style.borderRadius =
-          "12px";
-
-        button.style.textAlign =
-          "left";
-
-        button.style.fontSize =
-          "14px";
-
-        button.style.cursor =
-          "pointer";
-
-      }
-    );
-
-
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key !==
-        "Escape"
-      ) {
-
-        return;
-
-      }
-
-
-      [
-        "personModal",
-        "transactionModal",
-        "personDetailModal"
-      ]
-        .forEach(
-          id =>
-            document
-              .getElementById(
-                id
-              )
-              ?.classList.add(
-                "hidden"
-              )
-        );
-
-    }
-  );
 
 </script>
-
 
 </body>
 </html>
