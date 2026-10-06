@@ -1,0 +1,11 @@
+{
+  "name": "Transaction Paper",
+  "short_name": "Transaction Paper",
+  "description": "Secure personal financial ledger for tracking money given, received and balances.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary"
+}
