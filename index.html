@@ -7892,7 +7892,7 @@ function generatePDF(
         y = drawTableHeader(y);
       }
 
-      const rowHeight = 15;
+      const rowHeight = 19;
 
       if (index % 2 === 0) {
         pdf.setFillColor(248, 250, 252);
@@ -7914,6 +7914,16 @@ function generatePDF(
         .replace(/[\r\n]+/g, " ")
         .slice(0, 25);
 
+      const from = isGiven
+        ? "You"
+        : String(transaction.personName || "Person").slice(0, 18);
+
+      const to = isGiven
+        ? String(transaction.personName || "Person").slice(0, 18)
+        : "You";
+
+      const fromTo = `From: ${from} | To: ${to}`;
+
       const due = transaction.dueDate
         ? `Due ${String(transaction.dueDate)}`
         : "";
@@ -7922,7 +7932,8 @@ function generatePDF(
       pdf.text(description, 48, y + 5);
 
       pdf.setFontSize(5.4);
-      if (due) pdf.text(due, 48, y + 10);
+      pdf.text(fromTo, 48, y + 10);
+      if (due) pdf.text(due, 48, y + 14);
 
       pdf.setFontSize(6.4);
       pdf.text(isGiven ? pdfINR(amount) : "-", 118, y + 6);
