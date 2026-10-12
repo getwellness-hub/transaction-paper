@@ -2162,24 +2162,6 @@
       </div>
 
       <div>
-        <label for="transactionMode" class="block text-sm font-medium mb-1">Payment Mode</label>
-        <select id="transactionMode" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
-          <option value="">Select payment mode</option>
-          <option value="UPI">UPI</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Cash">Cash</option>
-          <option value="Cheque">Cheque</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="transactionReference" class="block text-sm font-medium mb-1">UPI Transaction ID / UTR / Cheque No.</label>
-        <input id="transactionReference" type="text" maxlength="100" placeholder="Paste the Paytm / GPay / PhonePe UPI ID or bank UTR" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none">
-        <p id="transactionReferenceHelp" class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">For UPI or bank payment, copy the transaction ID/UTR from the payment details screen.</p>
-      </div>
-
-      <div>
         <label for="transactionDueDate" class="block text-sm font-medium mb-1">Due / Repayment Date (Optional)</label>
         <input id="transactionDueDate" type="date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
       </div>
@@ -2187,32 +2169,6 @@
       <div>
         <label for="transactionNote" class="block text-sm font-medium mb-1">Purpose / Note / Description</label>
         <textarea id="transactionNote" rows="3" maxlength="500" placeholder="Personal loan, advance, material payment..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none"></textarea>
-      </div>
-
-      <div class="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 p-4">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input id="transactionAcknowledged" type="checkbox" class="mt-1 w-4 h-4">
-          <span>
-            <span class="block text-sm font-semibold">Counterparty acknowledged this transaction</span>
-            <span class="block text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">Tick this only when the other person has actually acknowledged the transaction. This records the acknowledgement status; it is not a guarantee of legal validity.</span>
-          </span>
-        </label>
-
-        <div class="mt-3">
-          <label for="transactionAcknowledgementMethod" class="block text-xs font-medium mb-1">Acknowledgement Method (Optional)</label>
-          <select id="transactionAcknowledgementMethod" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm">
-            <option value="">Select method</option>
-            <option value="WhatsApp">WhatsApp</option>
-            <option value="SMS">SMS</option>
-            <option value="Written / Signed">Written / Signed</option>
-            <option value="UPI / Bank Record">UPI / Bank Record</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-        Keep the original UPI/bank records and any messages or signed documents separately.
       </div>
 
       <button id="saveTransactionBtn" type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Transaction</button>
@@ -2918,6 +2874,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  deleteDoc,
+  doc,
   serverTimestamp
 }
 from
@@ -3450,75 +3408,6 @@ function todayISO() {
 
 $("transactionDate").value =
   todayISO();
-
-
-/* =========================================================
-   PAYMENT REFERENCE HELPER
-========================================================= */
-
-function updatePaymentReferenceField() {
-
-  const mode = $("transactionMode")?.value || "";
-  const input = $("transactionReference");
-  const help = $("transactionReferenceHelp");
-
-  if (!input) return;
-
-  const digitalMode =
-    mode === "UPI" ||
-    mode === "Bank Transfer" ||
-    mode === "Cheque";
-
-  input.required = digitalMode;
-
-  if (mode === "UPI") {
-    input.placeholder = "Paste Paytm / GPay / PhonePe UPI Transaction ID";
-    if (help) help.textContent = "Open the payment details in your UPI app and copy the UPI Transaction ID here.";
-  } else if (mode === "Bank Transfer") {
-    input.placeholder = "Paste bank UTR / transaction reference";
-    if (help) help.textContent = "Copy the UTR or bank transaction reference from your bank statement/payment details.";
-  } else if (mode === "Cheque") {
-    input.placeholder = "Enter cheque number";
-    if (help) help.textContent = "Enter the cheque number used for this transaction.";
-  } else if (mode === "Cash") {
-    input.placeholder = "Not required for cash";
-    if (help) help.textContent = "Cash transactions can be supported with a signed/written acknowledgement separately.";
-  } else {
-    input.placeholder = "Optional payment reference";
-    if (help) help.textContent = "Use this field for any available payment reference.";
-  }
-
-}
-
-$("transactionMode")?.addEventListener("change", updatePaymentReferenceField);
-updatePaymentReferenceField();
-
-
-/* =========================================================
-   TRANSACTION CODE
-========================================================= */
-
-function makeTransactionCode() {
-
-  const d = new Date();
-  const pad = value => String(value).padStart(2, "0");
-  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-
-  return (
-    "TP-TXN-" +
-    d.getFullYear() +
-    pad(d.getMonth() + 1) +
-    pad(d.getDate()) +
-    "-" +
-    pad(d.getHours()) +
-    pad(d.getMinutes()) +
-    pad(d.getSeconds()) +
-    "-" +
-    random
-  );
-
-}
-
 
 
 /* =========================================================
@@ -6143,20 +6032,16 @@ function renderTransactions() {
                       : ""
                   }
 
-                <div
-                  class="mt-3 text-[11px] text-slate-500 dark:text-slate-400 space-y-1"
+                ${transaction.dueDate ? `<p class="mt-2 text-xs text-slate-500">Due: ${escapeHTML(transaction.dueDate)}</p>` : ""}
+
+                <button
+                  type="button"
+                  class="delete-transaction-btn mt-3 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:hover:bg-red-500/10"
+                  data-transaction-id="${escapeHTML(transaction.id)}"
+                  data-person-name="${escapeHTML(transaction.personName || "this person")}" 
                 >
-                  <div>ID: ${escapeHTML(transaction.transactionCode || transaction.id || "Legacy")}</div>
-                  <div>
-                    Mode: ${escapeHTML(transaction.paymentMode || "Not recorded")}
-                    ${transaction.referenceNumber ? ` | Ref: ${escapeHTML(transaction.referenceNumber)}` : ""}
-                  </div>
-                  ${transaction.dueDate ? `<div>Due: ${escapeHTML(transaction.dueDate)}</div>` : ""}
-                  <div>
-                    Acknowledged: ${transaction.acknowledged ? "Yes" : "No"}
-                    ${transaction.acknowledgementMethod ? ` (${escapeHTML(transaction.acknowledgementMethod)})` : ""}
-                  </div>
-                </div>
+                  Delete
+                </button>
 
                 </div>
 
@@ -6170,6 +6055,35 @@ function renderTransactions() {
       )
       .join("");
 
+  box
+    .querySelectorAll(".delete-transaction-btn")
+    .forEach(button => {
+      button.addEventListener("click", () =>
+        deleteTransaction(button.dataset.transactionId, button.dataset.personName)
+      );
+    });
+
+}
+
+
+async function deleteTransaction(transactionId, personName) {
+  if (!currentUser || !transactionId) return;
+
+  const confirmed = window.confirm(
+    `Delete this transaction for ${personName}? This cannot be undone.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await deleteDoc(doc(db, "users", currentUser.uid, "transactions", transactionId));
+    transactions = transactions.filter(transaction => transaction.id !== transactionId);
+    renderEverything();
+    showToast("Transaction deleted.");
+  } catch (error) {
+    console.error("Delete transaction error:", error);
+    showToast("Could not delete transaction.");
+  }
 }
 
 
@@ -6539,18 +6453,7 @@ function renderTimeline(
                     : ""
                 }
 
-                <div
-                  class="mt-3 text-[11px] text-slate-500 dark:text-slate-400 space-y-1"
-                >
-                  <div>ID: ${escapeHTML(transaction.transactionCode || transaction.id || "Legacy")}</div>
-                  <div>Mode: ${escapeHTML(transaction.paymentMode || "Not recorded")}</div>
-                  ${transaction.referenceNumber ? `<div>Reference: ${escapeHTML(transaction.referenceNumber)}</div>` : ""}
-                  ${transaction.dueDate ? `<div>Due date: ${escapeHTML(transaction.dueDate)}</div>` : ""}
-                  <div>
-                    Acknowledged: ${transaction.acknowledged ? "Yes" : "No"}
-                    ${transaction.acknowledgementMethod ? ` (${escapeHTML(transaction.acknowledgementMethod)})` : ""}
-                  </div>
-                </div>
+                ${transaction.dueDate ? `<p class="mt-3 text-xs text-slate-500">Due date: ${escapeHTML(transaction.dueDate)}</p>` : ""}
 
               </div>
 
@@ -6736,12 +6639,8 @@ $("transactionForm")
       const personId = $("transactionPerson").value;
       const amount = Number($("transactionAmount").value);
       const date = $("transactionDate").value;
-      const mode = $("transactionMode")?.value || "";
-      const referenceNumber = $("transactionReference")?.value.trim() || "";
       const dueDate = $("transactionDueDate")?.value || "";
       const note = $("transactionNote").value.trim();
-      const acknowledged = Boolean($("transactionAcknowledged")?.checked);
-      const acknowledgementMethod = $("transactionAcknowledgementMethod")?.value || "";
 
       if (!personId) {
         showToast("Please select a person.");
@@ -6758,29 +6657,7 @@ $("transactionForm")
         return;
       }
 
-      if (!mode) {
-        showToast("Please select the payment mode.");
-        return;
-      }
-
-      const digitalMode =
-        mode === "UPI" ||
-        mode === "Bank Transfer" ||
-        mode === "Cheque";
-
-      if (digitalMode && !referenceNumber) {
-        showToast("Please enter the UPI Transaction ID / UTR / Cheque No.");
-        $("transactionReference")?.focus();
-        return;
-      }
-
-      if (acknowledged && !acknowledgementMethod) {
-        showToast("Please select the acknowledgement method.");
-        return;
-      }
-
       const person = people.find(item => item.id === personId);
-      const transactionCode = makeTransactionCode();
       const saveButton = $("saveTransactionBtn");
 
       if (saveButton) {
@@ -6794,18 +6671,13 @@ $("transactionForm")
           transactionsCollection(),
           {
             ownerUid: currentUser.uid,
-            transactionCode,
             personId,
             personName: person?.name || "Unknown",
             type,
             amount,
             date,
-            paymentMode: mode,
-            referenceNumber,
             dueDate,
             note,
-            acknowledged,
-            acknowledgementMethod,
             createdAt: serverTimestamp()
           }
         );
@@ -6814,7 +6686,7 @@ $("transactionForm")
         $("transactionDate").value = todayISO();
         closeModal("transactionModal");
 
-        showToast(`Transaction saved: ${transactionCode}`);
+        showToast("Transaction saved.");
 
         await loadTransactions();
         renderEverything();
@@ -7890,8 +7762,7 @@ function generatePDF(
       pdf.setFontSize(6.5);
 
       pdf.text("DATE", 18, startY + 6.5);
-      pdf.text("TXN ID", 38, startY + 6.5);
-      pdf.text("DESCRIPTION / DETAILS", 63, startY + 6.5);
+      pdf.text("DESCRIPTION", 48, startY + 6.5);
       pdf.text("SEND", 118, startY + 6.5);
       pdf.text("RECEIVE", 144, startY + 6.5);
       pdf.text("BALANCE", 173, startY + 6.5);
@@ -7951,12 +7822,6 @@ function generatePDF(
       pdf.setFontSize(6.4);
 
       const date = String(transaction.date || "");
-      const transactionId = String(
-        transaction.transactionCode ||
-        transaction.id ||
-        "Legacy"
-      ).slice(0, 18);
-
       let description =
         transaction.note ||
         (isGiven ? "Money Given" : "Money Received");
@@ -7965,37 +7830,15 @@ function generatePDF(
         .replace(/[\r\n]+/g, " ")
         .slice(0, 25);
 
-      const mode = String(
-        transaction.paymentMode || "Not recorded"
-      ).slice(0, 18);
-
-      const ref = String(
-        transaction.referenceNumber || ""
-      ).slice(0, 15);
-
       const due = transaction.dueDate
         ? `Due ${String(transaction.dueDate)}`
         : "";
 
-      const ack = transaction.acknowledged
-        ? `Ack: ${String(transaction.acknowledgementMethod || "Yes")}`
-        : "Ack: No";
-
       pdf.text(date, 18, y + 6);
-      pdf.text(transactionId, 38, y + 6);
-      pdf.text(description, 63, y + 5);
+      pdf.text(description, 48, y + 5);
 
       pdf.setFontSize(5.4);
-      pdf.text(
-        `Mode: ${mode}${ref ? ` | Ref: ${ref}` : ""}`,
-        63,
-        y + 9
-      );
-      pdf.text(
-        `${due}${due && ack ? " | " : ""}${ack}`,
-        63,
-        y + 12.2
-      );
+      if (due) pdf.text(due, 48, y + 10);
 
       pdf.setFontSize(6.4);
       pdf.text(isGiven ? pdfINR(amount) : "-", 118, y + 6);
@@ -8235,10 +8078,6 @@ function generatePDF(
       "This statement is generated electronically by Transaction Paper.",
 
       "Running balance = Total Given minus Total Received.",
-
-      "Transaction IDs, payment modes, references and acknowledgement records are shown when recorded.",
-
-      "Keep original UPI, bank, cash acknowledgement, WhatsApp or signed documents separately.",
 
       "Please verify transaction details before financial reconciliation."
 
