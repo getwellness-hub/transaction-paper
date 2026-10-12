@@ -1011,6 +1011,7 @@
       <div>
 
         <h3
+          id="personModalTitle"
           class="font-bold
                  text-lg"
         >
@@ -1904,6 +1905,7 @@
 
 
         <p
+          id="personModalSubtitle"
           class="text-xs
                  text-slate-500"
         >
@@ -2874,6 +2876,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  setDoc,
   deleteDoc,
   doc,
   writeBatch,
@@ -2960,6 +2964,10 @@ let spendings =
 
 
 let deferredInstallPrompt =
+  null;
+
+
+let editingPersonId =
   null;
 
 
@@ -3721,6 +3729,16 @@ $("logoutBtn")
    AUTH STATE
 ========================================================= */
 
+const sharedLedgerId =
+  new URLSearchParams(window.location.search).get("share");
+
+
+if (sharedLedgerId) {
+
+  loadSharedLedger(sharedLedgerId);
+
+} else {
+
 onAuthStateChanged(
   auth,
   async user => {
@@ -3798,6 +3816,8 @@ onAuthStateChanged(
 
   }
 );
+
+}
 
 
 
@@ -5792,6 +5812,7 @@ function renderPeople() {
               <div
                 class="flex
                        gap-2
+                       flex-wrap
                        mt-5"
               >
 
@@ -5807,6 +5828,22 @@ function renderPeople() {
                   data-person-id="${person.id}"
                 >
                   View Ledger
+                </button>
+
+                <button
+                  type="button"
+                  class="edit-person px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800"
+                  data-person-id="${person.id}"
+                >
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  class="share-ledger px-3 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10"
+                  data-person-id="${person.id}"
+                >
+                  Share
                 </button>
 
 
@@ -5887,6 +5924,38 @@ function renderPeople() {
       }
     );
 
+  document
+    .querySelectorAll(
+      ".edit-person"
+    )
+    .forEach(
+      button => {
+        button.addEventListener(
+          "click",
+          () =>
+            openPersonForEdit(
+              button.dataset.personId
+            )
+        );
+      }
+    );
+
+  document
+    .querySelectorAll(
+      ".share-ledger"
+    )
+    .forEach(
+      button => {
+        button.addEventListener(
+          "click",
+          () =>
+            createShareLink(
+              button.dataset.personId
+            )
+        );
+      }
+    );
+
 }
 
 
@@ -5918,6 +5987,112 @@ async function deletePerson(personId, personName) {
   } catch (error) {
     console.error("Delete person error:", error);
     showToast("Could not delete this person.");
+  }
+}
+
+
+async function createShareLink(personId) {
+  if (!currentUser) return;
+
+  const person = people.find(item => item.id === personId);
+
+  if (!person) {
+    showToast("Person record could not be found.");
+    return;
+  }
+
+  const summary = getSummary(personId);
+  const shareId = crypto.randomUUID().replace(/-/g, "");
+
+  const sharedTransactions = summary.transactions.map(transaction => ({
+    date: transaction.date || "",
+    type: transaction.type || "",
+    amount: Number(transaction.amount || 0),
+    note: transaction.note || "",
+    dueDate: transaction.dueDate || ""
+  }));
+
+  try {
+    await setDoc(
+      doc(db, "sharedLedgers", shareId),
+      {
+        ownerUid: currentUser.uid,
+        personName: person.name || "Person",
+        summary: {
+          given: summary.given,
+          received: summary.received,
+          balance: summary.balance
+        },
+        transactions: sharedTransactions,
+        createdAt: new Date().toISOString()
+      }
+    );
+
+    const shareUrl = new URL(window.location.href);
+    shareUrl.search = "";
+    shareUrl.searchParams.set("share", shareId);
+
+    try {
+      await navigator.clipboard.writeText(shareUrl.toString());
+      showToast("Private share link copied. Send it to this person.");
+    } catch (error) {
+      window.prompt("Copy this private share link:", shareUrl.toString());
+    }
+  } catch (error) {
+    console.error("Create share link error:", error);
+    showToast("Could not create the share link. Check Firebase rules.");
+  }
+}
+
+
+async function loadSharedLedger(shareId) {
+  document.body.innerHTML = `
+    <main class="min-h-screen bg-slate-50 p-4 sm:p-8 dark:bg-slate-950">
+      <div class="mx-auto max-w-3xl text-center text-slate-500">Loading shared ledger...</div>
+    </main>
+  `;
+
+  try {
+    const snapshot = await getDoc(doc(db, "sharedLedgers", shareId));
+
+    if (!snapshot.exists()) {
+      throw new Error("Shared ledger not found.");
+    }
+
+    const ledger = snapshot.data();
+    const entries = Array.isArray(ledger.transactions) ? ledger.transactions : [];
+    const summary = ledger.summary || {};
+
+    document.body.innerHTML = `
+      <main class="min-h-screen bg-slate-50 p-4 sm:p-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <section class="mx-auto max-w-3xl">
+          <div class="mb-6 rounded-2xl bg-primary-600 p-6 text-white shadow-xl">
+            <p class="text-sm text-blue-100">Shared read-only ledger</p>
+            <h1 class="mt-1 text-2xl font-extrabold">${escapeHTML(ledger.personName || "Ledger")}</h1>
+          </div>
+          <div class="mb-6 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900"><p class="text-sm text-slate-500">Given</p><p class="mt-2 text-xl font-bold">${formatINR(summary.given)}</p></div>
+            <div class="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900"><p class="text-sm text-slate-500">Received</p><p class="mt-2 text-xl font-bold">${formatINR(summary.received)}</p></div>
+            <div class="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900"><p class="text-sm text-slate-500">Balance</p><p class="mt-2 text-xl font-bold">${formatINR(summary.balance)}</p></div>
+          </div>
+          <div class="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-slate-900">
+            <div class="border-b border-slate-200 p-5 dark:border-slate-800"><h2 class="font-bold">Transactions</h2></div>
+            <div class="divide-y divide-slate-100 dark:divide-slate-800">
+              ${entries.length ? entries.map(entry => `
+                <div class="p-5"><div class="flex justify-between gap-4"><div><p class="font-semibold">${entry.type === "given" ? "Money Given" : "Money Received"}</p><p class="mt-1 text-sm text-slate-500">${escapeHTML(entry.date || "")}</p></div><p class="font-bold">${formatINR(entry.amount)}</p></div>${entry.note ? `<p class="mt-2 text-sm text-slate-500">${escapeHTML(entry.note)}</p>` : ""}${entry.dueDate ? `<p class="mt-2 text-xs text-slate-500">Due: ${escapeHTML(entry.dueDate)}</p>` : ""}</div>
+              `).join("") : `<p class="p-8 text-center text-slate-500">No transactions recorded.</p>`}
+            </div>
+          </div>
+        </section>
+      </main>
+    `;
+  } catch (error) {
+    console.error("Load shared ledger error:", error);
+    document.body.innerHTML = `
+      <main class="min-h-screen bg-slate-50 p-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+        <div class="mx-auto max-w-md rounded-2xl bg-white p-6 text-center shadow-sm dark:bg-slate-900"><h1 class="text-xl font-bold">Link unavailable</h1><p class="mt-2 text-sm text-slate-500">This shared ledger does not exist or is no longer available.</p></div>
+      </main>
+    `;
   }
 }
 
@@ -6557,6 +6732,34 @@ function renderTimeline(
    ADD PERSON
 ========================================================= */
 
+function openPersonForCreate() {
+  editingPersonId = null;
+  $("personForm")?.reset();
+  $("personModalTitle").textContent = "Add Person";
+  $("personModalSubtitle").textContent = "Create a new ledger account.";
+  $("savePersonBtn").textContent = "Save Person";
+  openModal("personModal");
+}
+
+
+function openPersonForEdit(personId) {
+  const person = people.find(item => item.id === personId);
+
+  if (!person) {
+    showToast("Person record could not be found.");
+    return;
+  }
+
+  editingPersonId = person.id;
+  $("personName").value = person.name || "";
+  $("personPhone").value = person.phone || "";
+  $("personNote").value = person.note || "";
+  $("personModalTitle").textContent = "Edit Person";
+  $("personModalSubtitle").textContent = "Update this person's details.";
+  $("savePersonBtn").textContent = "Save Changes";
+  openModal("personModal");
+}
+
 $("personForm")
   ?.addEventListener(
     "submit",
@@ -6624,24 +6827,48 @@ $("personForm")
 
       try {
 
-        await addDoc(
-          peopleCollection(),
-          {
+        if (editingPersonId) {
+          const batch = writeBatch(db);
+          const relatedTransactions = transactions.filter(
+            transaction => transaction.personId === editingPersonId
+          );
 
-            ownerUid:
-              currentUser.uid,
+          batch.update(
+            doc(db, "users", currentUser.uid, "people", editingPersonId),
+            { name, phone, note }
+          );
 
-            name,
+          relatedTransactions.forEach(transaction =>
+            batch.update(
+              doc(db, "users", currentUser.uid, "transactions", transaction.id),
+              { personName: name }
+            )
+          );
 
-            phone,
+          await batch.commit();
 
-            note,
-
-            createdAt:
-              serverTimestamp()
-
-          }
-        );
+          people = people.map(person =>
+            person.id === editingPersonId
+              ? { ...person, name, phone, note }
+              : person
+          );
+          transactions = transactions.map(transaction =>
+            transaction.personId === editingPersonId
+              ? { ...transaction, personName: name }
+              : transaction
+          );
+        } else {
+          await addDoc(
+            peopleCollection(),
+            {
+              ownerUid: currentUser.uid,
+              name,
+              phone,
+              note,
+              createdAt: serverTimestamp()
+            }
+          );
+        }
 
 
         event.target.reset();
@@ -6653,10 +6880,13 @@ $("personForm")
 
 
         showToast(
-          "Person saved successfully."
+          editingPersonId
+            ? "Person updated successfully."
+            : "Person saved successfully."
         );
 
 
+        editingPersonId = null;
         await loadPeople();
 
 
@@ -8468,9 +8698,7 @@ $("addPersonPageBtn")
   ?.addEventListener(
     "click",
     () =>
-      openModal(
-        "personModal"
-      )
+      openPersonForCreate()
   );
 
 
@@ -8494,9 +8722,7 @@ document
             "person"
           ) {
 
-            openModal(
-              "personModal"
-            );
+            openPersonForCreate();
 
           }
 
