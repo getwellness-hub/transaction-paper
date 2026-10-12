@@ -2173,6 +2173,12 @@
         <textarea id="transactionNote" rows="3" maxlength="500" placeholder="Personal loan, advance, material payment..." class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 outline-none"></textarea>
       </div>
 
+      <div>
+        <label for="transactionAttachment" class="block text-sm font-medium mb-1">Payment Slip / Transaction Proof (Optional)</label>
+        <input id="transactionAttachment" type="file" accept="image/png,image/jpeg" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm">
+        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Attach a JPG or PNG image, up to 5 MB. It will be added to this transaction's PDF statement.</p>
+      </div>
+
       <button id="saveTransactionBtn" type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Transaction</button>
 
     </form>
@@ -2887,6 +2893,17 @@ from
 "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+}
+from
+"https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+
+
 
 /* =========================================================
    FIREBASE CONFIG
@@ -2934,6 +2951,12 @@ const auth =
 
 const db =
   getFirestore(
+    firebaseApp
+  );
+
+
+const storage =
+  getStorage(
     firebaseApp
   );
 
@@ -6335,6 +6358,16 @@ async function deleteTransaction(transactionId, personName) {
   if (!confirmed) return;
 
   try {
+    const transaction = transactions.find(item => item.id === transactionId);
+
+    if (transaction?.attachmentPath) {
+      try {
+        await deleteObject(ref(storage, transaction.attachmentPath));
+      } catch (attachmentError) {
+        console.warn("Could not remove transaction attachment:", attachmentError);
+      }
+    }
+
     await deleteDoc(doc(db, "users", currentUser.uid, "transactions", transactionId));
     transactions = transactions.filter(transaction => transaction.id !== transactionId);
     renderEverything();
@@ -6955,6 +6988,7 @@ $("transactionForm")
       const date = $("transactionDate").value;
       const dueDate = $("transactionDueDate")?.value || "";
       const note = $("transactionNote").value.trim();
+      const attachmentFile = $("transactionAttachment")?.files?.[0] || null;
 
       if (!personId) {
         showToast("Please select a person.");
@@ -6971,6 +7005,19 @@ $("transactionForm")
         return;
       }
 
+      if (
+        attachmentFile &&
+        !["image/jpeg", "image/png"].includes(attachmentFile.type)
+      ) {
+        showToast("Please attach a JPG or PNG image.");
+        return;
+      }
+
+      if (attachmentFile && attachmentFile.size > 5 * 1024 * 1024) {
+        showToast("Slip image must be 5 MB or smaller.");
+        return;
+      }
+
       const person = people.find(item => item.id === personId);
       const saveButton = $("saveTransactionBtn");
 
@@ -6980,6 +7027,23 @@ $("transactionForm")
       }
 
       try {
+
+        let attachmentUrl = "";
+        let attachmentPath = "";
+        let attachmentName = "";
+
+        if (attachmentFile) {
+          const extension = attachmentFile.type === "image/png" ? "png" : "jpg";
+          attachmentPath = `users/${currentUser.uid}/transaction-slips/${crypto.randomUUID()}.${extension}`;
+          const attachmentRef = ref(storage, attachmentPath);
+
+          await uploadBytes(attachmentRef, attachmentFile, {
+            contentType: attachmentFile.type
+          });
+
+          attachmentUrl = await getDownloadURL(attachmentRef);
+          attachmentName = attachmentFile.name;
+        }
 
         await addDoc(
           transactionsCollection(),
@@ -6992,6 +7056,9 @@ $("transactionForm")
             date,
             dueDate,
             note,
+            attachmentUrl,
+            attachmentPath,
+            attachmentName,
             createdAt: serverTimestamp()
           }
         );
@@ -7352,7 +7419,38 @@ function makeSpendingCode() {
    PROFESSIONAL PDF
 ========================================================= */
 
-function generatePDF(
+async function loadProofImage(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Could not download payment slip.");
+  }
+
+  const blob = await response.blob();
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+  const image = await new Promise((resolve, reject) => {
+    const element = new Image();
+    element.onload = () => resolve(element);
+    element.onerror = reject;
+    element.src = dataUrl;
+  });
+
+  return {
+    dataUrl,
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+    format: blob.type === "image/png" ? "PNG" : "JPEG"
+  };
+}
+
+
+async function generatePDF(
   personId = null
 ) {
 
@@ -8439,6 +8537,46 @@ function generatePDF(
 
       }
     );
+
+
+    /* =======================================================
+       PAYMENT SLIP ATTACHMENTS
+    ======================================================== */
+
+    for (const transaction of list.filter(item => item.attachmentUrl)) {
+      pdf.addPage();
+
+      pdf.setFillColor(24, 55, 110);
+      pdf.rect(0, 0, pageWidth, 30, "F");
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(14);
+      pdf.text("PAYMENT SLIP / TRANSACTION PROOF", left, 18);
+
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(`Person: ${String(transaction.personName || "Person").slice(0, 45)}`, left, 42);
+      pdf.text(`Date: ${String(transaction.date || "")}`, left, 49);
+      pdf.text(`Amount: ${pdfINR(transaction.amount)}`, left, 56);
+
+      try {
+        const proof = await loadProofImage(transaction.attachmentUrl);
+        const maxWidth = 180;
+        const maxHeight = 205;
+        const ratio = Math.min(maxWidth / proof.width, maxHeight / proof.height);
+        const width = proof.width * ratio;
+        const height = proof.height * ratio;
+        const x = (pageWidth - width) / 2;
+
+        pdf.addImage(proof.dataUrl, proof.format, x, 67, width, height);
+      } catch (attachmentError) {
+        console.warn("PDF attachment error:", attachmentError);
+        pdf.setTextColor(105, 110, 120);
+        pdf.text("The attached payment slip could not be loaded.", left, 75);
+        pdf.setTextColor(0, 0, 0);
+      }
+    }
 
 
     /* =======================================================
