@@ -2176,7 +2176,7 @@
       <div>
         <label for="transactionAttachment" class="block text-sm font-medium mb-1">Payment Slip / Transaction Proof (Optional)</label>
         <input id="transactionAttachment" type="file" accept="image/png,image/jpeg" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-sm">
-        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Attach a JPG or PNG image, up to 5 MB. It will be added to this transaction's PDF statement.</p>
+        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Attach a JPG or PNG image, up to 500 KB. It will be added to this transaction's PDF statement.</p>
       </div>
 
       <button id="saveTransactionBtn" type="submit" class="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold">Save Transaction</button>
@@ -2893,17 +2893,6 @@ from
 "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-}
-from
-"https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
-
-
 
 /* =========================================================
    FIREBASE CONFIG
@@ -2951,12 +2940,6 @@ const auth =
 
 const db =
   getFirestore(
-    firebaseApp
-  );
-
-
-const storage =
-  getStorage(
     firebaseApp
   );
 
@@ -6358,16 +6341,6 @@ async function deleteTransaction(transactionId, personName) {
   if (!confirmed) return;
 
   try {
-    const transaction = transactions.find(item => item.id === transactionId);
-
-    if (transaction?.attachmentPath) {
-      try {
-        await deleteObject(ref(storage, transaction.attachmentPath));
-      } catch (attachmentError) {
-        console.warn("Could not remove transaction attachment:", attachmentError);
-      }
-    }
-
     await deleteDoc(doc(db, "users", currentUser.uid, "transactions", transactionId));
     transactions = transactions.filter(transaction => transaction.id !== transactionId);
     renderEverything();
@@ -7013,8 +6986,8 @@ $("transactionForm")
         return;
       }
 
-      if (attachmentFile && attachmentFile.size > 5 * 1024 * 1024) {
-        showToast("Slip image must be 5 MB or smaller.");
+      if (attachmentFile && attachmentFile.size > 500 * 1024) {
+        showToast("Slip image must be 500 KB or smaller.");
         return;
       }
 
@@ -7028,21 +7001,19 @@ $("transactionForm")
 
       try {
 
-        let attachmentUrl = "";
-        let attachmentPath = "";
+        let attachmentData = "";
         let attachmentName = "";
+        let attachmentType = "";
 
         if (attachmentFile) {
-          const extension = attachmentFile.type === "image/png" ? "png" : "jpg";
-          attachmentPath = `users/${currentUser.uid}/transaction-slips/${crypto.randomUUID()}.${extension}`;
-          const attachmentRef = ref(storage, attachmentPath);
-
-          await uploadBytes(attachmentRef, attachmentFile, {
-            contentType: attachmentFile.type
+          attachmentData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(attachmentFile);
           });
-
-          attachmentUrl = await getDownloadURL(attachmentRef);
           attachmentName = attachmentFile.name;
+          attachmentType = attachmentFile.type;
         }
 
         await addDoc(
@@ -7056,9 +7027,9 @@ $("transactionForm")
             date,
             dueDate,
             note,
-            attachmentUrl,
-            attachmentPath,
+            attachmentData,
             attachmentName,
+            attachmentType,
             createdAt: serverTimestamp()
           }
         );
@@ -7419,21 +7390,7 @@ function makeSpendingCode() {
    PROFESSIONAL PDF
 ========================================================= */
 
-async function loadProofImage(url) {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("Could not download payment slip.");
-  }
-
-  const blob = await response.blob();
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-
+async function loadProofImage(dataUrl) {
   const image = await new Promise((resolve, reject) => {
     const element = new Image();
     element.onload = () => resolve(element);
@@ -7445,7 +7402,7 @@ async function loadProofImage(url) {
     dataUrl,
     width: image.naturalWidth,
     height: image.naturalHeight,
-    format: blob.type === "image/png" ? "PNG" : "JPEG"
+    format: String(dataUrl).startsWith("data:image/png") ? "PNG" : "JPEG"
   };
 }
 
@@ -8543,7 +8500,7 @@ async function generatePDF(
        PAYMENT SLIP ATTACHMENTS
     ======================================================== */
 
-    for (const transaction of list.filter(item => item.attachmentUrl)) {
+    for (const transaction of list.filter(item => item.attachmentData)) {
       pdf.addPage();
 
       pdf.setFillColor(24, 55, 110);
@@ -8561,7 +8518,7 @@ async function generatePDF(
       pdf.text(`Amount: ${pdfINR(transaction.amount)}`, left, 56);
 
       try {
-        const proof = await loadProofImage(transaction.attachmentUrl);
+        const proof = await loadProofImage(transaction.attachmentData);
         const maxWidth = 180;
         const maxHeight = 205;
         const ratio = Math.min(maxWidth / proof.width, maxHeight / proof.height);
