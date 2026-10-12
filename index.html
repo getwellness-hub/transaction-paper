@@ -2876,6 +2876,7 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  writeBatch,
   serverTimestamp
 }
 from
@@ -5806,6 +5807,15 @@ function renderPeople() {
                     : ""
                 }
 
+                <button
+                  type="button"
+                  class="delete-person px-3 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 dark:border-red-500/30 dark:hover:bg-red-500/10"
+                  data-person-id="${person.id}"
+                  data-person-name="${escapeHTML(person.name || "this person")}" 
+                >
+                  Delete
+                </button>
+
               </div>
 
             </div>
@@ -5835,6 +5845,55 @@ function renderPeople() {
       }
     );
 
+  document
+    .querySelectorAll(
+      ".delete-person"
+    )
+    .forEach(
+      button => {
+        button.addEventListener(
+          "click",
+          () =>
+            deletePerson(
+              button.dataset.personId,
+              button.dataset.personName
+            )
+        );
+      }
+    );
+
+}
+
+
+async function deletePerson(personId, personName) {
+  if (!currentUser || !personId) return;
+
+  const relatedTransactions = transactions.filter(
+    transaction => transaction.personId === personId
+  );
+
+  const confirmed = window.confirm(
+    `Delete ${personName} and ${relatedTransactions.length} related transaction(s)? This cannot be undone.`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const batch = writeBatch(db);
+    relatedTransactions.forEach(transaction =>
+      batch.delete(doc(db, "users", currentUser.uid, "transactions", transaction.id))
+    );
+    batch.delete(doc(db, "users", currentUser.uid, "people", personId));
+    await batch.commit();
+
+    people = people.filter(person => person.id !== personId);
+    transactions = transactions.filter(transaction => transaction.personId !== personId);
+    renderEverything();
+    showToast("Person and related transactions deleted.");
+  } catch (error) {
+    console.error("Delete person error:", error);
+    showToast("Could not delete this person.");
+  }
 }
 
 
