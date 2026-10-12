@@ -3045,6 +3045,10 @@ function openModal(
     return;
   }
 
+  if (id === "transactionModal") {
+    renderTransactionPersonSelect();
+  }
+
 
   element.classList.remove(
     "hidden"
@@ -3055,6 +3059,27 @@ function openModal(
     "flex"
   );
 
+}
+
+
+function renderTransactionPersonSelect() {
+  const select = $("transactionPerson");
+
+  if (!select) return;
+
+  const selectedPersonId = select.value;
+
+  select.innerHTML =
+    '<option value="">Select person</option>' +
+    people
+      .map(person =>
+        `<option value="${escapeHTML(person.id)}">${escapeHTML(person.name || "Unnamed person")}</option>`
+      )
+      .join("");
+
+  if (people.some(person => person.id === selectedPersonId)) {
+    select.value = selectedPersonId;
+  }
 }
 
 
@@ -8754,6 +8779,8 @@ function renderEverything() {
   renderPeople();
 
   renderTransactions();
+
+  renderTransactionPersonSelect();
 
   renderDailySpending();
 
